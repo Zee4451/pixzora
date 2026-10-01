@@ -1,0 +1,563 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Navbar from '@/components/Navbar';
+import { supabase, Tenant, Product, Order } from '@/lib/supabase';
+import { 
+  Users, 
+  IndianRupee, 
+  TrendingUp, 
+  ShieldCheck, 
+  ExternalLink, 
+  Search, 
+  Power, 
+  Plus,
+  RefreshCw,
+  ShoppingBag,
+  Package,
+  Layers,
+  CheckCircle2,
+  Clock,
+  Eye
+} from 'lucide-react';
+
+export default function AdminDashboard() {
+  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'suspended'>('all');
+  const [activeTab, setActiveTab] = useState<'tenants' | 'products' | 'orders'>('tenants');
+  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+  const [productsList, setProductsList] = useState<Product[]>([]);
+  
+  // New Client Modal
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newClient, setNewClient] = useState({
+    name: '',
+    slug: '',
+    business_type: 'ecommerce' as const,
+    owner_name: '',
+    phone: '',
+    email: '',
+  });
+
+  // Fetch real data from Supabase
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const { data: tenantsData } = await supabase
+        .from('tenants')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (tenantsData) {
+        setTenants(tenantsData);
+      }
+
+      const { data: ordersData } = await supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (ordersData) {
+        setRecentOrders(ordersData);
+      }
+
+      const { data: productsData } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(30);
+
+      if (productsData) {
+        setProductsList(productsData);
+      }
+    } catch (err) {
+      console.error('Error fetching admin data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // Create new tenant
+  const handleCreateTenant = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const cleanSlug = newClient.slug.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+      const { data, error } = await supabase.from('tenants').insert([
+        {
+          name: newClient.name,
+          slug: cleanSlug,
+          business_type: newClient.business_type,
+          owner_name: newClient.owner_name,
+          phone: newClient.phone,
+          email: newClient.email || null,
+          monthly_price: 299,
+          status: 'active',
+          subscription_status: 'active',
+        }
+      ]).select();
+
+      if (error) {
+        alert('Error adding client: ' + error.message);
+      } else {
+        alert(`Client ${newClient.name} successfully created! Subdomain: ${cleanSlug}.pages.dev`);
+        setShowAddModal(false);
+        setNewClient({ name: '', slug: '', business_type: 'ecommerce', owner_name: '', phone: '', email: '' });
+        fetchData();
+      }
+    } catch (err: any) {
+      alert('Error: ' + err.message);
+    }
+  };
+
+  // Toggle tenant active/suspended
+  const toggleTenantStatus = async (id: string, currentStatus: string) => {
+    const nextStatus = currentStatus === 'active' ? 'suspended' : 'active';
+    const { error } = await supabase
+      .from('tenants')
+      .update({ status: nextStatus })
+      .eq('id', id);
+
+    if (error) {
+      alert('Error updating status: ' + error.message);
+    } else {
+      setTenants(prev => prev.map(t => t.id === id ? { ...t, status: nextStatus as any } : t));
+    }
+  };
+
+  const filteredTenants = tenants.filter(t => {
+    const matchesQuery = t.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         t.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (t.owner_name && t.owner_name.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesStatus = statusFilter === 'all' || t.status === statusFilter;
+    return matchesQuery && matchesStatus;
+  });
+
+  const totalClients = tenants.length;
+  const activeClients = tenants.filter(c => c.status === 'active').length;
+  const monthlyRevenue = activeClients * 299;
+
+  return (
+    <div className="min-h-screen bg-[#090d16] text-white">
+      <Navbar />
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        
+        {/* Top Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl sm:text-3xl font-black text-white">Pixzora Master Control</h1>
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                Live Supabase Connected
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-gray-400 mt-1">
+              Multi-Tenant Architecture • 100+ Clients Management • E-Commerce & Orders Tracking
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={fetchData}
+              disabled={loading}
+              className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 font-semibold text-xs flex items-center gap-1.5 border border-white/10 transition-all"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} /> Refresh
+            </button>
+            <button 
+              onClick={() => setShowAddModal(true)}
+              className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs flex items-center gap-2 shadow-lg shadow-cyan-500/20 transition-all"
+            >
+              <Plus className="w-4 h-4" /> Add New Client
+            </button>
+          </div>
+        </div>
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="glass-panel p-5 rounded-2xl border border-white/5">
+            <div className="flex items-center justify-between text-gray-400 mb-2">
+              <span className="text-xs font-semibold uppercase">Total Clients</span>
+              <Users className="w-4 h-4 text-cyan-400" />
+            </div>
+            <div className="text-3xl font-black text-white">{totalClients}</div>
+            <p className="text-xs text-gray-400 mt-1">Target: 100+ active shops</p>
+          </div>
+
+          <div className="glass-panel p-5 rounded-2xl border border-white/5">
+            <div className="flex items-center justify-between text-gray-400 mb-2">
+              <span className="text-xs font-semibold uppercase">Monthly Recurring Revenue</span>
+              <IndianRupee className="w-4 h-4 text-emerald-400" />
+            </div>
+            <div className="text-3xl font-black text-emerald-400">₹{monthlyRevenue.toLocaleString('en-IN')}</div>
+            <p className="text-xs text-gray-400 mt-1">@ ₹299/client monthly</p>
+          </div>
+
+          <div className="glass-panel p-5 rounded-2xl border border-white/5">
+            <div className="flex items-center justify-between text-gray-400 mb-2">
+              <span className="text-xs font-semibold uppercase">Active E-Commerce Orders</span>
+              <ShoppingBag className="w-4 h-4 text-purple-400" />
+            </div>
+            <div className="text-3xl font-black text-purple-400">{recentOrders.length}</div>
+            <p className="text-xs text-gray-400 mt-1">Across all client websites</p>
+          </div>
+
+          <div className="glass-panel p-5 rounded-2xl border border-white/5">
+            <div className="flex items-center justify-between text-gray-400 mb-2">
+              <span className="text-xs font-semibold uppercase">Tenant Security</span>
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            </div>
+            <div className="text-3xl font-black text-emerald-400">RLS Active</div>
+            <p className="text-xs text-gray-400 mt-1">Isolated client partitions</p>
+          </div>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="flex items-center gap-3 border-b border-white/10 pb-4 mb-6">
+          <button
+            onClick={() => setActiveTab('tenants')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeTab === 'tenants' ? 'bg-cyan-500 text-black shadow-lg shadow-cyan-500/20' : 'bg-white/5 text-gray-400 hover:text-white'
+            }`}
+          >
+            <Users className="w-4 h-4" /> Client Websites ({tenants.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('products')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeTab === 'products' ? 'bg-cyan-500 text-black shadow-lg shadow-cyan-500/20' : 'bg-white/5 text-gray-400 hover:text-white'
+            }`}
+          >
+            <Package className="w-4 h-4" /> Products & Catalog ({productsList.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('orders')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeTab === 'orders' ? 'bg-cyan-500 text-black shadow-lg shadow-cyan-500/20' : 'bg-white/5 text-gray-400 hover:text-white'
+            }`}
+          >
+            <ShoppingBag className="w-4 h-4" /> Global Orders ({recentOrders.length})
+          </button>
+        </div>
+
+        {/* TAB 1: TENANTS */}
+        {activeTab === 'tenants' && (
+          <>
+            {/* Filter & Search Bar */}
+            <div className="glass-panel p-4 rounded-2xl border border-white/5 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="relative w-full sm:w-80">
+                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search by business, subdomain, or owner..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 self-start sm:self-auto">
+                <span className="text-xs text-gray-400 font-medium">Status:</span>
+                <button
+                  onClick={() => setStatusFilter('all')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    statusFilter === 'all' ? 'bg-cyan-500 text-black' : 'bg-white/5 text-gray-400'
+                  }`}
+                >
+                  All ({tenants.length})
+                </button>
+                <button
+                  onClick={() => setStatusFilter('active')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    statusFilter === 'active' ? 'bg-emerald-500 text-black' : 'bg-white/5 text-gray-400'
+                  }`}
+                >
+                  Active ({tenants.filter(c => c.status === 'active').length})
+                </button>
+                <button
+                  onClick={() => setStatusFilter('suspended')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    statusFilter === 'suspended' ? 'bg-red-500 text-white' : 'bg-white/5 text-gray-400'
+                  }`}
+                >
+                  Suspended ({tenants.filter(c => c.status === 'suspended').length})
+                </button>
+              </div>
+            </div>
+
+            {/* Clients Table */}
+            <div className="glass-panel rounded-2xl border border-white/5 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-900/80 border-b border-white/10 text-gray-400 uppercase tracking-wider text-[10px]">
+                    <tr>
+                      <th className="py-3.5 px-4 font-semibold">Business & Owner</th>
+                      <th className="py-3.5 px-4 font-semibold">Domain / Pages.dev</th>
+                      <th className="py-3.5 px-4 font-semibold">Type</th>
+                      <th className="py-3.5 px-4 font-semibold">Billing Plan</th>
+                      <th className="py-3.5 px-4 font-semibold">Status</th>
+                      <th className="py-3.5 px-4 font-semibold text-right">Kill Switch</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {loading ? (
+                      <tr>
+                        <td colSpan={6} className="py-8 text-center text-gray-400">
+                          Connecting to Supabase...
+                        </td>
+                      </tr>
+                    ) : filteredTenants.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="py-8 text-center text-gray-400">
+                          No clients found. Click "Add New Client" above to onboard your first shop!
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredTenants.map((client) => {
+                        const isActive = client.status === 'active';
+                        return (
+                          <tr key={client.id} className="hover:bg-white/5 transition-colors">
+                            <td className="py-4 px-4">
+                              <div className="font-bold text-white text-sm">{client.name}</div>
+                              <div className="text-gray-400 text-[11px]">{client.owner_name || 'Owner'} • {client.phone}</div>
+                            </td>
+
+                            <td className="py-4 px-4 font-mono">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-cyan-400 font-semibold">{client.slug}.pages.dev</span>
+                                <a
+                                  href={`/preview/${client.business_type === 'restaurant' ? 'dine-hub' : 'store-express'}`}
+                                  target="_blank"
+                                  className="text-gray-500 hover:text-white"
+                                  title="Live Preview"
+                                >
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                </a>
+                              </div>
+                            </td>
+
+                            <td className="py-4 px-4">
+                              <span className="capitalize px-2 py-0.5 rounded bg-white/5 border border-white/10 text-gray-300">
+                                {client.business_type}
+                              </span>
+                            </td>
+
+                            <td className="py-4 px-4">
+                              <div className="font-bold text-emerald-400">₹{client.monthly_price}/mo</div>
+                              <div className="text-[10px] text-gray-400">Due: {new Date(client.subscription_end_date).toLocaleDateString()}</div>
+                            </td>
+
+                            <td className="py-4 px-4">
+                              <div className="flex items-center gap-2">
+                                <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-emerald-400' : 'bg-red-400'}`} />
+                                <span className={isActive ? 'text-emerald-300 font-medium' : 'text-red-400 font-medium'}>
+                                  {isActive ? 'Active' : 'Suspended'}
+                                </span>
+                              </div>
+                            </td>
+
+                            <td className="py-4 px-4 text-right">
+                              <button
+                                onClick={() => toggleTenantStatus(client.id, client.status)}
+                                title={isActive ? 'Suspend Website' : 'Reactivate Website'}
+                                className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 ml-auto transition-all ${
+                                  isActive
+                                    ? 'bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white'
+                                    : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-black'
+                                }`}
+                              >
+                                <Power className="w-3 h-3" />
+                                {isActive ? 'Suspend' : 'Reactivate'}
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* TAB 2: PRODUCTS */}
+        {activeTab === 'products' && (
+          <div className="glass-panel p-6 rounded-2xl border border-white/5">
+            <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2">
+              <Package className="w-4 h-4 text-cyan-400" /> All Client Products & Menus
+            </h3>
+            {productsList.length === 0 ? (
+              <p className="text-xs text-gray-400 text-center py-8">
+                No products uploaded yet. Products added by clients in their individual dashboards will appear here in real-time.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {productsList.map((prod) => (
+                  <div key={prod.id} className="p-4 rounded-xl bg-slate-900 border border-white/10 flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center text-gray-400">
+                      <ShoppingBag className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white text-xs">{prod.title}</h4>
+                      <p className="text-emerald-400 font-semibold text-xs">₹{prod.price}</p>
+                      <span className="text-[10px] text-gray-400">{prod.category}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 3: ORDERS */}
+        {activeTab === 'orders' && (
+          <div className="glass-panel p-6 rounded-2xl border border-white/5">
+            <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2">
+              <ShoppingBag className="w-4 h-4 text-purple-400" /> Realtime Global Orders Stream
+            </h3>
+            {recentOrders.length === 0 ? (
+              <p className="text-xs text-gray-400 text-center py-8">
+                No live orders yet. As customers order from any client website, they will appear here instantly.
+              </p>
+            ) : (
+              <div className="divide-y divide-white/5">
+                {recentOrders.map((ord) => (
+                  <div key={ord.id} className="py-3 flex items-center justify-between">
+                    <div>
+                      <div className="font-bold text-white text-xs">{ord.customer_name} • {ord.customer_phone}</div>
+                      <div className="text-[11px] text-gray-400">Total: ₹{ord.total_amount} | Status: {ord.order_status}</div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded text-[10px] bg-purple-500/10 text-purple-300 border border-purple-500/20 font-bold uppercase">
+                      {ord.payment_status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+      </main>
+
+      {/* Add Client Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="glass-panel p-6 rounded-2xl border border-white/10 max-w-md w-full bg-[#0c1220]">
+            <h3 className="text-lg font-black text-white mb-1">Add New Client Website</h3>
+            <p className="text-xs text-gray-400 mb-4">Set up a new isolated client partition with automated ₹299/mo plan.</p>
+
+            <form onSubmit={handleCreateTenant} className="space-y-3.5">
+              <div>
+                <label className="text-[11px] font-semibold text-gray-300 block mb-1">Business Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Royal Sweets & Bakery"
+                  value={newClient.name}
+                  onChange={(e) => {
+                    const name = e.target.value;
+                    const autoSlug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+                    setNewClient(prev => ({ ...prev, name, slug: autoSlug }));
+                  }}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/10 text-xs text-white focus:outline-none focus:border-cyan-400"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-gray-300 block mb-1">Subdomain Slug (Pages.dev)</label>
+                <div className="flex items-center">
+                  <input
+                    type="text"
+                    required
+                    placeholder="royal-sweets"
+                    value={newClient.slug}
+                    onChange={(e) => setNewClient(prev => ({ ...prev, slug: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-l-xl bg-slate-900 border border-white/10 text-xs text-white focus:outline-none focus:border-cyan-400 font-mono"
+                  />
+                  <span className="px-3 py-2 bg-white/5 border border-l-0 border-white/10 rounded-r-xl text-xs text-gray-400 font-mono">
+                    .pages.dev
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] font-semibold text-gray-300 block mb-1">Business Category</label>
+                  <select
+                    value={newClient.business_type}
+                    onChange={(e) => setNewClient(prev => ({ ...prev, business_type: e.target.value as any }))}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/10 text-xs text-white focus:outline-none focus:border-cyan-400"
+                  >
+                    <option value="ecommerce">E-Commerce Store</option>
+                    <option value="restaurant">Restaurant / Cafe</option>
+                    <option value="services">Service / Clinic</option>
+                    <option value="portfolio">Creator / Agency</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-gray-300 block mb-1">Owner Name</label>
+                  <input
+                    type="text"
+                    placeholder="Rahul Sharma"
+                    value={newClient.owner_name}
+                    onChange={(e) => setNewClient(prev => ({ ...prev, owner_name: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/10 text-xs text-white focus:outline-none focus:border-cyan-400"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] font-semibold text-gray-300 block mb-1">Phone (WhatsApp)</label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="+91 9876543210"
+                    value={newClient.phone}
+                    onChange={(e) => setNewClient(prev => ({ ...prev, phone: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/10 text-xs text-white focus:outline-none focus:border-cyan-400"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-gray-300 block mb-1">Email</label>
+                  <input
+                    type="email"
+                    placeholder="client@gmail.com"
+                    value={newClient.email}
+                    onChange={(e) => setNewClient(prev => ({ ...prev, email: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/10 text-xs text-white focus:outline-none focus:border-cyan-400"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black text-xs font-bold shadow-lg shadow-cyan-500/20"
+                >
+                  Save & Launch Site
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
