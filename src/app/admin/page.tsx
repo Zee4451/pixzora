@@ -22,7 +22,9 @@ import {
   Trash2,
   Lock,
   KeyRound,
-  LogOut
+  LogOut,
+  Rocket,
+  Copy
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -470,16 +472,28 @@ export default function AdminDashboard() {
 
                             <td className="py-4 px-4 font-mono">
                               <div className="flex items-center gap-1.5">
-                                <span className="text-cyan-400 font-semibold">{client.slug}.pages.dev</span>
                                 <a
-                                  href={`/preview/${client.business_type === 'restaurant' ? 'dine-hub' : 'store-express'}`}
+                                  href={`https://${client.slug}.pages.dev`}
                                   target="_blank"
-                                  className="text-gray-500 hover:text-white"
-                                  title="Live Preview"
+                                  rel="noopener noreferrer"
+                                  className="text-cyan-400 font-semibold hover:underline flex items-center gap-1"
                                 >
-                                  <ExternalLink className="w-3.5 h-3.5" />
+                                  {client.slug}.pages.dev
+                                  <ExternalLink className="w-3 h-3 text-cyan-400/70" />
                                 </a>
                               </div>
+                              <button
+                                onClick={() => {
+                                  const cmd = `npx wrangler pages deploy out --project-name ${client.slug}`;
+                                  navigator.clipboard.writeText(cmd);
+                                  alert(`Deployment command copied to clipboard:\n\n${cmd}\n\nRun this in terminal to deploy this client's site to https://${client.slug}.pages.dev!`);
+                                }}
+                                className="mt-1 text-[10px] text-gray-400 hover:text-white flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded border border-white/5 transition-all"
+                                title="Copy 1-Click Cloudflare Pages Deploy Command"
+                              >
+                                <Rocket className="w-3 h-3 text-purple-400" />
+                                <span>Copy Deploy Command</span>
+                              </button>
                             </td>
 
                             <td className="py-4 px-4">
