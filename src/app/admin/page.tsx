@@ -18,7 +18,8 @@ import {
   Layers,
   CheckCircle2,
   Clock,
-  Eye
+  Eye,
+  Trash2
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -128,6 +129,28 @@ export default function AdminDashboard() {
       alert('Error updating status: ' + error.message);
     } else {
       setTenants(prev => prev.map(t => t.id === id ? { ...t, status: nextStatus as any } : t));
+    }
+  };
+
+  // Delete client completely
+  const deleteTenant = async (id: string, name: string) => {
+    const confirmed = window.confirm(`Are you sure you want to permanently delete "${name}"? This will delete all products, orders and website data.`);
+    if (!confirmed) return;
+
+    try {
+      const { error } = await supabase
+        .from('tenants')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        alert('Error deleting client: ' + error.message);
+      } else {
+        setTenants(prev => prev.filter(t => t.id !== id));
+        alert(`Client "${name}" has been permanently deleted.`);
+      }
+    } catch (err: any) {
+      alert('Error: ' + err.message);
     }
   };
 
@@ -364,18 +387,28 @@ export default function AdminDashboard() {
                             </td>
 
                             <td className="py-4 px-4 text-right">
-                              <button
-                                onClick={() => toggleTenantStatus(client.id, client.status)}
-                                title={isActive ? 'Suspend Website' : 'Reactivate Website'}
-                                className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 ml-auto transition-all ${
-                                  isActive
-                                    ? 'bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white'
-                                    : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-black'
-                                }`}
-                              >
-                                <Power className="w-3 h-3" />
-                                {isActive ? 'Suspend' : 'Reactivate'}
-                              </button>
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => toggleTenantStatus(client.id, client.status)}
+                                  title={isActive ? 'Suspend Website' : 'Reactivate Website'}
+                                  className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 transition-all ${
+                                    isActive
+                                      ? 'bg-amber-500/10 text-amber-400 hover:bg-amber-500 hover:text-black'
+                                      : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-black'
+                                  }`}
+                                >
+                                  <Power className="w-3 h-3" />
+                                  {isActive ? 'Suspend' : 'Reactivate'}
+                                </button>
+
+                                <button
+                                  onClick={() => deleteTenant(client.id, client.name)}
+                                  title="Permanently Delete Client"
+                                  className="p-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         );
