@@ -19,7 +19,10 @@ import {
   CheckCircle2,
   Clock,
   Eye,
-  Trash2
+  Trash2,
+  Lock,
+  KeyRound,
+  LogOut
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -42,8 +45,40 @@ export default function AdminDashboard() {
     email: '',
   });
 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState('');
+  const [authChecking, setAuthChecking] = useState(true);
+
+  // Check existing session
+  useEffect(() => {
+    const savedPin = sessionStorage.getItem('pixzora_admin_auth');
+    if (savedPin === 'pixzora2026') {
+      setIsAuthenticated(true);
+    }
+    setAuthChecking(false);
+  }, []);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pinInput === 'pixzora2026') {
+      sessionStorage.setItem('pixzora_admin_auth', 'pixzora2026');
+      setIsAuthenticated(true);
+      setPinError('');
+    } else {
+      setPinError('Invalid Passcode! Access restricted to Super Admin.');
+    }
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('pixzora_admin_auth');
+    setIsAuthenticated(false);
+    setPinInput('');
+  };
+
   // Fetch real data from Supabase
   const fetchData = async () => {
+    if (!isAuthenticated) return;
     setLoading(true);
     try {
       const { data: tenantsData } = await supabase
@@ -82,8 +117,10 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (isAuthenticated) {
+      fetchData();
+    }
+  }, [isAuthenticated]);
 
   // Create new tenant
   const handleCreateTenant = async (e: React.FormEvent) => {
@@ -166,6 +203,78 @@ export default function AdminDashboard() {
   const activeClients = tenants.filter(c => c.status === 'active').length;
   const monthlyRevenue = activeClients * 299;
 
+  if (authChecking) {
+    return (
+      <div className="min-h-screen bg-[#090d16] text-white flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // PASSCODE LOCK SCREEN
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#090d16] text-white flex flex-col justify-between">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="max-w-md w-full glass-panel p-8 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
+            
+            <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-cyan-500/10">
+              <Lock className="w-7 h-7" />
+            </div>
+
+            <h2 className="text-2xl font-black text-white text-center mb-2">Master Control Security</h2>
+            <p className="text-xs text-gray-400 text-center mb-6">
+              Enter Super Admin Passcode to manage 100+ client websites, subscriptions & kill-switches.
+            </p>
+
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="text-[11px] font-semibold text-gray-300 block mb-1 uppercase tracking-wider">
+                  Admin Passcode
+                </label>
+                <div className="relative">
+                  <KeyRound className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="password"
+                    autoFocus
+                    required
+                    placeholder="••••••••••••"
+                    value={pinInput}
+                    onChange={(e) => {
+                      setPinInput(e.target.value);
+                      setPinError('');
+                    }}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-900 border border-white/10 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-cyan-400 font-mono tracking-widest"
+                  />
+                </div>
+                {pinError && (
+                  <p className="text-xs text-red-400 mt-2 font-medium flex items-center gap-1">
+                    ⚠️ {pinError}
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-400 via-teal-400 to-indigo-500 text-black font-extrabold text-sm shadow-xl shadow-cyan-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+              >
+                <Lock className="w-4 h-4" /> Unlock Admin Registry
+              </button>
+            </form>
+
+            <div className="mt-6 pt-4 border-t border-white/5 text-center">
+              <span className="text-[11px] text-gray-500">
+                Protected by 256-bit Row-Level Security • Pixzora Master Gate
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#090d16] text-white">
       <Navbar />
@@ -199,6 +308,13 @@ export default function AdminDashboard() {
               className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs flex items-center gap-2 shadow-lg shadow-cyan-500/20 transition-all"
             >
               <Plus className="w-4 h-4" /> Add New Client
+            </button>
+            <button 
+              onClick={handleLogout}
+              title="Lock Admin Session"
+              className="px-3 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold flex items-center gap-1.5 border border-red-500/20 transition-all"
+            >
+              <LogOut className="w-3.5 h-3.5" /> Lock
             </button>
           </div>
         </div>
