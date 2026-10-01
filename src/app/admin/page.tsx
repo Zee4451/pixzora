@@ -484,7 +484,7 @@ export default function AdminDashboard() {
                               </div>
                               <button
                                 onClick={() => {
-                                  const cmd = `npx wrangler pages deploy out --project-name ${client.slug}`;
+                                  const cmd = `npm run deploy:client -- ${client.slug}`;
                                   navigator.clipboard.writeText(cmd);
                                   alert(`Deployment command copied to clipboard:\n\n${cmd}\n\nRun this in terminal to deploy this client's site to https://${client.slug}.pages.dev!`);
                                 }}
