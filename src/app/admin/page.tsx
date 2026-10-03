@@ -172,8 +172,8 @@ export default function AdminDashboard() {
   };
 
   // Delete client completely
-  const deleteTenant = async (id: string, name: string) => {
-    const confirmed = window.confirm(`Are you sure you want to permanently delete "${name}"? This will delete all products, orders and website data.`);
+  const deleteTenant = async (id: string, name: string, slug?: string) => {
+    const confirmed = window.confirm(`Are you sure you want to permanently delete "${name}"? This will delete all products, orders and website data from database.`);
     if (!confirmed) return;
 
     try {
@@ -186,7 +186,13 @@ export default function AdminDashboard() {
         alert('Error deleting client: ' + error.message);
       } else {
         setTenants(prev => prev.filter(t => t.id !== id));
-        alert(`Client "${name}" has been permanently deleted.`);
+        if (slug) {
+          const deleteCmd = `npx wrangler pages project delete ${slug} --yes`;
+          navigator.clipboard.writeText(deleteCmd);
+          alert(`Client "${name}" has been deleted from database!\n\nTo also delete the Cloudflare Pages domain (https://${slug}.pages.dev), run this command in terminal (already copied to your clipboard):\n\n${deleteCmd}`);
+        } else {
+          alert(`Client "${name}" has been permanently deleted.`);
+        }
       }
     } catch (err: any) {
       alert('Error: ' + err.message);
@@ -482,21 +488,36 @@ export default function AdminDashboard() {
                                   <ExternalLink className="w-3 h-3 text-cyan-400/70" />
                                 </a>
                               </div>
-                              <button
-                                onClick={() => {
-                                  const cmd = `npm run deploy:client -- ${client.slug}`;
-                                  navigator.clipboard.writeText(cmd);
-                                  alert(`Deployment command copied to clipboard:\n\n${cmd}\n\nRun this in terminal to deploy this client's site to https://${client.slug}.pages.dev!`);
-                                }}
-                                className="mt-1 text-[10px] text-gray-400 hover:text-white flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded border border-white/5 transition-all"
-                                title="Copy 1-Click Cloudflare Pages Deploy Command"
-                              >
-                                <Rocket className="w-3 h-3 text-purple-400" />
-                                <span>Copy Deploy Command</span>
-                              </button>
-                            </td>
+                              <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                                  <button
+                                    onClick={() => {
+                                      const cmd = `npm run deploy:client -- ${client.slug}`;
+                                      navigator.clipboard.writeText(cmd);
+                                      alert(`Deployment command copied to clipboard:\n\n${cmd}\n\nRun this in terminal to deploy this client's site to https://${client.slug}.pages.dev!`);
+                                    }}
+                                    className="text-[10px] text-gray-400 hover:text-white flex items-center gap-1 bg-white/5 hover:bg-white/10 px-2 py-0.5 rounded border border-white/5 transition-all"
+                                    title="Copy 1-Click Cloudflare Pages Deploy Command"
+                                  >
+                                    <Rocket className="w-3 h-3 text-purple-400" />
+                                    <span>Deploy Cmd</span>
+                                  </button>
 
-                            <td className="py-4 px-4">
+                                  <button
+                                    onClick={() => {
+                                      const cmd = `npx wrangler pages project delete ${client.slug} --yes`;
+                                      navigator.clipboard.writeText(cmd);
+                                      alert(`Cloudflare Delete Command copied to clipboard:\n\n${cmd}\n\nRun this in terminal to permanently remove https://${client.slug}.pages.dev domain from Cloudflare!`);
+                                    }}
+                                    className="text-[10px] text-red-400/80 hover:text-red-300 flex items-center gap-1 bg-red-500/5 hover:bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20 transition-all"
+                                    title="Copy Cloudflare Pages Delete Domain Command"
+                                  >
+                                    <Trash2 className="w-3 h-3 text-red-400" />
+                                    <span>Delete Domain Cmd</span>
+                                  </button>
+                                </div>
+                              </td>
+
+                              <td className="py-4 px-4">
                               <span className="capitalize px-2 py-0.5 rounded bg-white/5 border border-white/10 text-gray-300">
                                 {client.business_type}
                               </span>
@@ -532,7 +553,7 @@ export default function AdminDashboard() {
                                 </button>
 
                                 <button
-                                  onClick={() => deleteTenant(client.id, client.name)}
+                                  onClick={() => deleteTenant(client.id, client.name, client.slug)}
                                   title="Permanently Delete Client"
                                   className="p-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all"
                                 >
