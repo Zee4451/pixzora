@@ -15,9 +15,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Pixzora | Done-For-You Custom Website at ₹299/mo",
   description: "Get your business online with a custom website, free edge hosting and zero maintenance charges for just ₹299/month.",
-  other: {
-    "strix-verification": "strix-verify-d09f64cc32708d45015f9b78903abc01",
-  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
