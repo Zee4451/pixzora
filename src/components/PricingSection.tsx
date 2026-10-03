@@ -62,7 +62,7 @@ export default function PricingSection() {
 
             <div>
               <div className="mb-6">
-                <h3 className="text-xl font-bold text-white mb-1">Pixora Launchpad</h3>
+                <h3 className="text-xl font-bold text-white mb-1">Pixzora Launchpad</h3>
                 <p className="text-xs text-gray-400">Everything needed to establish, run, and scale your brand</p>
               </div>
 

@@ -85,7 +85,7 @@ export default function SecuritySection() {
 
         </div>
 
-        {/* 4 Pillars of Pixora Security */}
+        {/* 4 Pillars of Pixzora Security */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="glass-panel rounded-2xl p-6 border border-white/5">
             <div className="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-4">
