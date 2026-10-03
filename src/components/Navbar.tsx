@@ -22,38 +22,30 @@ export default function Navbar() {
         </Link>
 
         {/* Navigation Links */}
-        <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-slate-300">
+        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
           <Link href="#features" className="hover:text-sky-400 transition-colors">
-            Platform Benefits
+            Benefits
           </Link>
           <Link href="#templates" className="hover:text-sky-400 transition-colors">
-            Client Showcase
+            Showcase
           </Link>
           <Link href="#security" className="hover:text-sky-400 transition-colors flex items-center gap-1.5">
             <Shield className="w-4 h-4 text-emerald-400" />
-            Security & Compliance
+            Security
           </Link>
           <Link href="#pricing" className="hover:text-sky-400 transition-colors">
-            Pricing & AutoPay
+            Pricing
           </Link>
-          <Link href="/zero-cost-guide" className="hover:text-emerald-400 transition-colors flex items-center gap-1.5 text-xs bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20">
+          <Link href="/zero-cost-guide" className="hover:text-emerald-400 transition-colors flex items-center gap-1.5 text-xs bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">
             ₹0 Cost Architecture
           </Link>
         </nav>
 
-        {/* CTA Button & Secondary Link */}
+        {/* CTA Button */}
         <div className="flex items-center gap-3">
           <Link
-            href="/admin"
-            className="hidden sm:flex items-center gap-1.5 text-xs text-slate-400 hover:text-white px-3 py-2 rounded-lg transition-colors"
-          >
-            <LayoutDashboard className="w-3.5 h-3.5 text-slate-400" />
-            Admin Login
-          </Link>
-
-          <Link
             href="/onboarding"
-            className="inline-flex items-center justify-center px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold rounded-xl bg-gradient-to-r from-sky-400 to-blue-600 hover:from-sky-300 hover:to-blue-500 text-slate-950 shadow-md shadow-sky-500/20 active:scale-95 transition-all gap-2"
+            className="inline-flex items-center justify-center px-5 py-2.5 text-xs sm:text-sm font-semibold rounded-xl bg-gradient-to-r from-sky-400 to-blue-600 hover:from-sky-300 hover:to-blue-500 text-slate-950 shadow-md shadow-sky-500/20 active:scale-95 transition-all gap-2"
           >
             <Sparkles className="w-4 h-4 text-slate-950" />
             Get Started

@@ -177,7 +177,6 @@ export default function Home() {
             <Link href="#templates" className="hover:text-sky-400 transition-colors">Showcase</Link>
             <Link href="#security" className="hover:text-sky-400 transition-colors">Security</Link>
             <Link href="#pricing" className="hover:text-sky-400 transition-colors">Pricing</Link>
-            <Link href="/admin" className="text-sky-400 hover:text-sky-300 font-semibold transition-colors">Admin Portal</Link>
           </div>
 
           <p className="text-slate-500">© {new Date().getFullYear()} Pixzora Technologies. Engineered for Reliability.</p>
