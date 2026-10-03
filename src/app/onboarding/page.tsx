@@ -44,24 +44,68 @@ function OnboardingContent() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [mandateSuccess, setMandateSuccess] = useState(false);
 
+  const [slugSuggestions, setSlugSuggestions] = useState<string[]>([]);
+
   // Dynamic subdomain suggestion
   const handleBusinessNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value;
-    const cleanSub = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const cleanSub = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
     setFormData(prev => ({
       ...prev,
       businessName: name,
       subdomain: prev.subdomain ? prev.subdomain : cleanSub
     }));
+    if (cleanSub) {
+      checkSubdomain(cleanSub);
+    }
   };
 
-  const checkSubdomain = (val: string) => {
+  const checkSubdomain = async (val: string) => {
+    const clean = val.toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-');
+    if (!clean || clean.length < 3) {
+      setIsSubdomainAvailable(null);
+      setSlugSuggestions([]);
+      return;
+    }
+
+    const reserved = ['admin', 'api', 'app', 'pixora', 'pixzora', 'preview', 'client-store', 'www'];
+    if (reserved.includes(clean)) {
+      setIsSubdomainAvailable(false);
+      setSlugSuggestions([`${clean}-store`, `${clean}-online`, `${clean}-in`]);
+      return;
+    }
+
     setIsCheckingDomain(true);
-    setTimeout(() => {
-      // Mock availability
-      setIsSubdomainAvailable(val.length >= 3 && !['admin', 'api', 'app', 'pixora'].includes(val.toLowerCase()));
+    try {
+      const { data, error } = await supabase
+        .from('tenants')
+        .select('id')
+        .eq('slug', clean)
+        .maybeSingle();
+
+      if (error) {
+        // Fallback to true if table check has edge error
+        setIsSubdomainAvailable(true);
+        setSlugSuggestions([]);
+      } else if (data) {
+        // Taken! Generate smart variations based on city / numbers / store
+        setIsSubdomainAvailable(false);
+        const randomNum = Math.floor(10 + Math.random() * 90);
+        setSlugSuggestions([
+          `${clean}-store`,
+          `${clean}-in`,
+          `${clean}-${randomNum}`,
+          `${clean}-official`
+        ]);
+      } else {
+        setIsSubdomainAvailable(true);
+        setSlugSuggestions([]);
+      }
+    } catch {
+      setIsSubdomainAvailable(true);
+    } finally {
       setIsCheckingDomain(false);
-    }, 400);
+    }
   };
 
   const handleNextStep = () => {
@@ -69,9 +113,15 @@ function OnboardingContent() {
       alert('Please fill out your business name, phone and email to continue.');
       return;
     }
-    if (step === 2 && !formData.subdomain) {
-      alert('Please select a free subdomain for your website.');
-      return;
+    if (step === 2) {
+      if (!formData.subdomain || formData.subdomain.length < 3) {
+        alert('Please choose a valid subdomain (minimum 3 characters).');
+        return;
+      }
+      if (isSubdomainAvailable === false) {
+        alert('This subdomain is already taken by another store! Please pick an available name or one of our suggestions.');
+        return;
+      }
     }
     setStep(prev => prev + 1);
   };
@@ -259,7 +309,7 @@ function OnboardingContent() {
                     placeholder="mybusiness"
                     value={formData.subdomain}
                     onChange={(e) => {
-                      const v = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+                      const v = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-');
                       setFormData({ ...formData, subdomain: v });
                       checkSubdomain(v);
                     }}
@@ -270,15 +320,41 @@ function OnboardingContent() {
                   </div>
                 </div>
 
-                <div className="mt-2 text-xs flex items-center gap-2">
+                <div className="mt-2.5 text-xs">
                   {isCheckingDomain ? (
-                    <span className="text-gray-400">Checking availability...</span>
+                    <span className="text-gray-400 flex items-center gap-1.5">
+                      <div className="w-3 h-3 border border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                      Checking availability on database...
+                    </span>
                   ) : isSubdomainAvailable === true ? (
-                    <span className="text-emerald-400 flex items-center gap-1">
-                      <Check className="w-3.5 h-3.5" /> <strong>{formData.subdomain}.pixoraplan.com</strong> is available!
+                    <span className="text-emerald-400 flex items-center gap-1 font-medium">
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <strong>{formData.subdomain}.pages.dev</strong> is available!
                     </span>
                   ) : isSubdomainAvailable === false ? (
-                    <span className="text-red-400">This subdomain is reserved. Try another name.</span>
+                    <div>
+                      <span className="text-red-400 font-medium flex items-center gap-1 mb-2">
+                        ❌ <strong>{formData.subdomain}.pages.dev</strong> is already taken! Pick an alternative:
+                      </span>
+                      {slugSuggestions.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                          <span className="text-gray-400 text-[11px]">Suggestions:</span>
+                          {slugSuggestions.map((sug) => (
+                            <button
+                              key={sug}
+                              type="button"
+                              onClick={() => {
+                                setFormData({ ...formData, subdomain: sug });
+                                checkSubdomain(sug);
+                              }}
+                              className="px-2.5 py-1 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-mono transition-all"
+                            >
+                              +{sug}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   ) : (
                     <span className="text-gray-500">Pick a unique identifier for your website.</span>
                   )}

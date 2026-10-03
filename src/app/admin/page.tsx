@@ -128,7 +128,27 @@ export default function AdminDashboard() {
   const handleCreateTenant = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const cleanSlug = newClient.slug.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+      let cleanSlug = newClient.slug.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+      
+      // 1. Check if slug already exists in tenants table
+      const { data: existing } = await supabase
+        .from('tenants')
+        .select('id, name')
+        .eq('slug', cleanSlug)
+        .maybeSingle();
+
+      if (existing) {
+        const randomNum = Math.floor(10 + Math.random() * 90);
+        const suggested = `${cleanSlug}-${randomNum}`;
+        const proceedWithSuggested = window.confirm(
+          `Subdomain "${cleanSlug}.pages.dev" is already in use by "${existing.name}"!\n\nWould you like to use "${suggested}.pages.dev" instead?`
+        );
+        if (!proceedWithSuggested) {
+          return;
+        }
+        cleanSlug = suggested;
+      }
+
       const { data, error } = await supabase.from('tenants').insert([
         {
           name: newClient.name,
