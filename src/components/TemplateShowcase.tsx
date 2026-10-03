@@ -27,24 +27,24 @@ export default function TemplateShowcase() {
   return (
     <section id="templates" className="py-24 relative overflow-hidden">
       {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-indigo-600/10 blur-[130px] rounded-full pointer-events-none -z-10" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-sky-600/5 blur-[140px] rounded-full pointer-events-none -z-10" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-4 border border-cyan-500/20">
-            <Sparkles className="w-3.5 h-3.5" /> 100% Done-For-You Custom Websites
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900/80 text-sky-400 text-xs font-semibold uppercase tracking-wider mb-4 border border-slate-700/60 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5" /> Proven Bespoke Web Engineering
           </div>
           <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight mb-4">
-            You Share Requirements. <span className="gradient-text">We Build It Custom.</span>
+            Custom Architecture. <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-300 to-indigo-300">Live Client Proof.</span>
           </h2>
-          <p className="text-gray-400 text-base sm:text-lg">
-            No cookie-cutter templates. We design, code, and deploy a completely bespoke website tailored to your business, with free hosting & lifetime maintenance at ₹299/mo.
+          <p className="text-slate-400 text-base sm:text-lg">
+            From heavy industrial manufacturers to high-converting direct-to-consumer stores. We architect and maintain production systems starting at ₹299/mo flat.
           </p>
 
           {/* Filter Pills */}
           <div className="flex flex-wrap items-center justify-center gap-2 mt-8">
             {[
-              { id: 'all', label: 'All Designs' },
+              { id: 'all', label: 'All Industries' },
               { id: 'industrial', label: 'Industrial & B2B' },
               { id: 'ecommerce', label: 'E-Commerce & Store' },
               { id: 'service', label: 'Services & Clinics' },
@@ -54,10 +54,10 @@ export default function TemplateShowcase() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${
+                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                   selectedCategory === cat.id
-                    ? 'bg-cyan-500 text-black font-semibold shadow-lg shadow-cyan-500/30'
-                    : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
+                    ? 'bg-sky-500 text-slate-950 shadow-md shadow-sky-500/25'
+                    : 'bg-slate-900/60 text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800'
                 }`}
               >
                 {cat.label}
@@ -74,36 +74,36 @@ export default function TemplateShowcase() {
               <div
                 key={template.id}
                 onClick={() => setActivePreview(template)}
-                className={`cursor-pointer rounded-2xl p-6 transition-all duration-300 relative flex flex-col justify-between glass-panel ${
+                className={`cursor-pointer rounded-2xl p-6 transition-all duration-300 relative flex flex-col justify-between glass-panel border-slate-800/80 bg-slate-900/40 ${
                   isSelected
-                    ? 'border-cyan-400 shadow-xl shadow-cyan-500/10 bg-slate-900/90 ring-1 ring-cyan-500/50 scale-[1.02]'
+                    ? 'border-sky-500/80 shadow-xl shadow-sky-500/10 ring-1 ring-sky-500/40 bg-slate-900/90 scale-[1.02]'
                     : 'glass-panel-hover'
                 }`}
               >
                 {/* Badge */}
                 <div className="mb-4 flex items-center justify-between">
-                  <span className="text-[11px] font-semibold tracking-wide uppercase px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                  <span className="text-[11px] font-semibold tracking-wide uppercase px-2.5 py-1 rounded-full bg-slate-800/80 text-sky-300 border border-slate-700/60">
                     {template.badge}
                   </span>
-                  <div className="text-gray-400">
-                    {template.category === 'industrial' && <Factory className="w-4 h-4 text-amber-500" />}
+                  <div className="text-slate-400">
+                    {template.category === 'industrial' && <Factory className="w-4 h-4 text-orange-400" />}
                     {template.category === 'ecommerce' && <ShoppingBag className="w-4 h-4 text-emerald-400" />}
-                    {template.category === 'service' && <Briefcase className="w-4 h-4 text-blue-400" />}
-                    {template.category === 'portfolio' && <Camera className="w-4 h-4 text-purple-400" />}
+                    {template.category === 'service' && <Briefcase className="w-4 h-4 text-sky-400" />}
+                    {template.category === 'portfolio' && <Camera className="w-4 h-4 text-indigo-400" />}
                     {template.category === 'restaurant' && <Utensils className="w-4 h-4 text-amber-400" />}
                   </div>
                 </div>
 
                 {/* Content */}
                 <div>
-                  <h3 className="text-xl font-bold text-white mb-2">{template.name}</h3>
-                  <p className="text-xs text-gray-300 font-medium mb-3">{template.tagline}</p>
-                  <p className="text-xs text-gray-400 leading-relaxed mb-4">{template.description}</p>
+                  <h3 className="text-lg font-bold text-white mb-2">{template.name}</h3>
+                  <p className="text-xs text-sky-400 font-medium mb-3">{template.tagline}</p>
+                  <p className="text-xs text-slate-400 leading-relaxed mb-4">{template.description}</p>
 
                   <div className="space-y-2 mb-6">
                     {template.features.map((feat, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs text-gray-300">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                      <div key={i} className="flex items-center gap-2 text-xs text-slate-300">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         <span>{feat}</span>
                       </div>
                     ))}
@@ -111,11 +111,11 @@ export default function TemplateShowcase() {
                 </div>
 
                 {/* Action Footer */}
-                <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between">
                   <Link
                     href={`/preview/${template.id}`}
                     target="_blank"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-400 hover:text-cyan-300 transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-400 hover:text-sky-300 transition-colors"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Eye className="w-3.5 h-3.5" />
@@ -125,7 +125,7 @@ export default function TemplateShowcase() {
 
                   <Link
                     href={`/onboarding?template=${template.id}`}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500 hover:text-black text-xs font-semibold transition-all"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-sky-500/15 text-sky-300 hover:bg-sky-500 hover:text-slate-950 text-xs font-semibold transition-all"
                   >
                     Select
                     <ArrowRight className="w-3 h-3" />
@@ -137,17 +137,17 @@ export default function TemplateShowcase() {
         </div>
 
         {/* Live Interactive Preview Box */}
-        <div className="mt-14 glass-panel rounded-3xl p-6 sm:p-8 border border-white/10">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
+        <div className="mt-14 glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800/90 bg-slate-900/60 shadow-2xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800/80">
             <div>
               <div className="flex items-center gap-3">
-                <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
                 <h4 className="text-lg font-bold text-white">
-                  Previewing: <span className="text-cyan-400">{activePreview.name}</span>
+                  Live View: <span className="text-sky-400">{activePreview.name}</span>
                 </h4>
               </div>
-              <p className="text-xs text-gray-400 mt-1">
-                Subdomain: <code className="text-indigo-300 bg-white/5 px-2 py-0.5 rounded">mybrand.pixzora.pages.dev</code> (Free SSL + Edge Hosting included)
+              <p className="text-xs text-slate-400 mt-1">
+                Connected Sandbox: <code className="text-slate-300 bg-black/40 px-2 py-0.5 rounded border border-slate-800">https://demo-{activePreview.id}.pixzora.pages.dev</code>
               </p>
             </div>
             
@@ -155,16 +155,16 @@ export default function TemplateShowcase() {
               <Link
                 href={`/preview/${activePreview.id}`}
                 target="_blank"
-                className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-medium border border-white/10 flex items-center gap-2 transition-all"
+                className="px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700/60 flex items-center gap-2 transition-all"
               >
                 Open Fullscreen
-                <ExternalLink className="w-3.5 h-3.5" />
+                <ExternalLink className="w-3.5 h-3.5 text-sky-400" />
               </Link>
               <Link
                 href={`/onboarding?template=${activePreview.id}`}
-                className="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black text-xs font-bold shadow-lg shadow-cyan-500/25 transition-all flex items-center gap-2"
+                className="px-5 py-2 rounded-xl bg-gradient-to-r from-sky-400 to-blue-600 hover:from-sky-300 hover:to-blue-500 text-slate-950 text-xs font-bold shadow-md shadow-sky-500/20 transition-all flex items-center gap-2"
               >
-                Get this for ₹299/mo
+                Deploy Similar @ ₹299/mo
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>

@@ -19,85 +19,84 @@ import {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#090d16] text-white selection:bg-cyan-500 selection:text-black">
+    <div className="min-h-screen bg-[#06090f] text-slate-100 selection:bg-sky-500 selection:text-black">
       <Navbar />
 
       {/* Hero Section */}
       <section className="relative pt-20 pb-28 overflow-hidden">
-        {/* Ambient Glow Orbs */}
-        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-cyan-600/20 via-indigo-600/20 to-purple-600/20 blur-[140px] pointer-events-none -z-10 rounded-full" />
-        <div className="absolute top-40 right-10 w-96 h-96 bg-purple-500/10 blur-[100px] pointer-events-none -z-10" />
+        {/* Ambient Subtle Lighting (No harsh or playful glows) */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-gradient-to-b from-sky-500/10 via-blue-600/5 to-transparent blur-[120px] pointer-events-none -z-10 rounded-full" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           
-          {/* Top Pill */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs sm:text-sm font-medium text-gray-300 mb-8 backdrop-blur-md">
-            <span className="flex h-2 w-2 rounded-full bg-cyan-400 animate-ping" />
-            <span className="text-cyan-400 font-semibold">Pixzora</span>
-            <span className="text-gray-500">|</span>
-            <span>100% Done-For-You Custom Website at just ₹299/month</span>
-            <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+          {/* Top Institutional Badge */}
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-900/80 border border-slate-700/60 text-xs sm:text-sm font-medium text-slate-300 mb-8 shadow-sm backdrop-blur-md">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-sky-400 font-semibold">Enterprise Managed Service</span>
+            <span className="text-slate-600">•</span>
+            <span>Bespoke Custom Websites at ₹299/month</span>
+            <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
           </div>
 
           {/* Main Title */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white max-w-5xl mx-auto leading-[1.1] mb-6">
-            Hum Banayenge Aapki Custom Website Sirf{' '}
-            <span className="gradient-text underline decoration-cyan-500/30 decoration-wavy">
-              ₹299 / Month
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-5xl mx-auto leading-[1.12] mb-6">
+            Enterprise-Grade Websites. Built Custom.{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-300 to-indigo-300">
+              ₹299 / Month Flat.
             </span>
           </h1>
 
-          {/* Subtitle */}
-          <p className="text-base sm:text-xl text-gray-400 max-w-3xl mx-auto font-normal leading-relaxed mb-10">
-            Aap sirf requirements bataiye, hum complete custom website banakar live denge. <strong className="text-white font-semibold">Zero Hosting Cost</strong>, Free <code>pages.dev</code> Subdomain, aur zero domain charges.
+          {/* Subtitle with High-Trust Psychological Anchoring */}
+          <p className="text-base sm:text-xl text-slate-300 max-w-3xl mx-auto font-normal leading-relaxed mb-10">
+            You provide business requirements — our engineering team designs, develops, and manages your web infrastructure. Zero upfront setup charges, zero hosting bills, and 99.99% uptime on global edge networks.
           </p>
 
           {/* Action CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto mb-16">
             <Link
               href="/onboarding"
-              className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-400 via-teal-400 to-indigo-500 text-black font-extrabold text-base shadow-xl shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 group"
+              className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-sky-400 to-blue-600 hover:from-sky-300 hover:to-blue-500 text-slate-950 font-bold text-base shadow-xl shadow-sky-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group"
             >
-              Launch Website @ ₹299/mo
+              Get Started for ₹299/mo
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             
             <Link
               href="#templates"
-              className="w-full sm:w-auto px-7 py-4 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold text-base border border-white/10 backdrop-blur-md transition-all flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-7 py-4 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-200 font-semibold text-base border border-slate-700/60 backdrop-blur-md transition-all flex items-center justify-center gap-2"
             >
-              Explore Templates
+              Explore Live Showcase
             </Link>
           </div>
 
-          {/* Quick Stats / Trust Signals */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-6 border-t border-white/10 text-left">
-            <div className="glass-panel p-4 rounded-2xl">
-              <div className="text-2xl font-black text-cyan-400 flex items-center gap-1">
-                ₹0 <span className="text-xs text-gray-400 font-normal">Setup Fee</span>
+          {/* Trust Guarantees Grid (Psychological Risk Reversal) */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-8 border-t border-slate-800/80 text-left">
+            <div className="glass-panel p-5 rounded-2xl border-slate-800/80 bg-slate-900/50">
+              <div className="text-2xl font-black text-white flex items-center gap-1.5">
+                ₹0 <span className="text-xs text-slate-400 font-normal">CapEx</span>
               </div>
-              <p className="text-xs text-gray-400 mt-1">No ₹25,000 agency costs</p>
+              <p className="text-xs text-slate-400 mt-1">Zero ₹25k agency fees</p>
             </div>
 
-            <div className="glass-panel p-4 rounded-2xl">
-              <div className="text-2xl font-black text-emerald-400 flex items-center gap-1">
-                Free <span className="text-xs text-gray-400 font-normal">Hosting</span>
+            <div className="glass-panel p-5 rounded-2xl border-slate-800/80 bg-slate-900/50">
+              <div className="text-2xl font-black text-sky-400 flex items-center gap-1.5">
+                100% <span className="text-xs text-slate-400 font-normal">Managed</span>
               </div>
-              <p className="text-xs text-gray-400 mt-1">Cloudflare Edge unlimited</p>
+              <p className="text-xs text-slate-400 mt-1">Free edge hosting & SSL</p>
             </div>
 
-            <div className="glass-panel p-4 rounded-2xl">
-              <div className="text-2xl font-black text-purple-400 flex items-center gap-1">
-                100% <span className="text-xs text-gray-400 font-normal">AutoPay</span>
+            <div className="glass-panel p-5 rounded-2xl border-slate-800/80 bg-slate-900/50">
+              <div className="text-2xl font-black text-emerald-400 flex items-center gap-1.5">
+                AutoPay <span className="text-xs text-slate-400 font-normal">Ready</span>
               </div>
-              <p className="text-xs text-gray-400 mt-1">Automated bank deduction</p>
+              <p className="text-xs text-slate-400 mt-1">Official UPI / Bank eMandate</p>
             </div>
 
-            <div className="glass-panel p-4 rounded-2xl">
-              <div className="text-2xl font-black text-amber-400 flex items-center gap-1">
-                0 <span className="text-xs text-gray-400 font-normal">Cross-Site Risk</span>
+            <div className="glass-panel p-5 rounded-2xl border-slate-800/80 bg-slate-900/50">
+              <div className="text-2xl font-black text-indigo-300 flex items-center gap-1.5">
+                Air-Gapped <span className="text-xs text-slate-400 font-normal">Safety</span>
               </div>
-              <p className="text-xs text-gray-400 mt-1">Air-gapped tenant sandbox</p>
+              <p className="text-xs text-slate-400 mt-1">Zero cross-site intrusion risk</p>
             </div>
           </div>
 
@@ -105,45 +104,46 @@ export default function Home() {
       </section>
 
       {/* Feature Highlights: Why Pixzora @ ₹299 */}
-      <section id="features" className="py-20 bg-[#070b13] border-t border-white/5">
+      <section id="features" className="py-24 bg-[#080d17] border-t border-slate-800/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
-              Everything Your Business Needs to Thrive Online
+            <span className="text-xs font-bold uppercase tracking-widest text-sky-400">Institutional Infrastructure</span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-2 mb-4">
+              Everything Your Business Needs to Dominate Online
             </h2>
-            <p className="text-gray-400 text-sm sm:text-base">
-              Designed specifically for merchants, clinics, freelancers, and businesses who want an elite online store or portfolio without spending thousands.
+            <p className="text-slate-400 text-sm sm:text-base">
+              Built for businesses, manufacturers, clinics, and professional sellers who demand reliability, speed, and zero maintenance friction.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="glass-panel rounded-2xl p-8 border border-white/5 relative group hover:border-cyan-500/40 transition-all">
-              <div className="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-6">
+            <div className="glass-panel rounded-2xl p-8 border-slate-800/80 hover:border-sky-500/40 transition-all bg-slate-900/40">
+              <div className="w-12 h-12 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center mb-6 border border-sky-500/20">
                 <Globe2 className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">Free Domain & Edge Hosting</h3>
-              <p className="text-sm text-gray-400 leading-relaxed">
-                Receive an instant free subdomain (e.g. <code>yourname.pages.dev</code>) with free SSL and edge CDN speed. Easily link your custom <code>.com</code> or <code>.in</code> whenever you choose.
+              <h3 className="text-xl font-bold text-white mb-3">Edge CDN & Managed Domain</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                Deploy instantly with a complimentary fast edge subdomain (e.g. <code>yourbrand.pages.dev</code>) and auto-provisioned SSL. Connect your custom <code>.com</code> or <code>.in</code> domain seamlessly at any time.
               </p>
             </div>
 
-            <div className="glass-panel rounded-2xl p-8 border border-white/5 relative group hover:border-purple-500/40 transition-all">
-              <div className="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-6">
+            <div className="glass-panel rounded-2xl p-8 border-slate-800/80 hover:border-emerald-500/40 transition-all bg-slate-900/40">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-6 border border-emerald-500/20">
                 <RefreshCw className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">Seamless UPI AutoPay</h3>
-              <p className="text-sm text-gray-400 leading-relaxed">
-                No need to scan manual QR codes or transfer money every month. Automated eMandate deducts ₹299 automatically from your bank on the 30th day. Cancel anytime in 1-click.
+              <h3 className="text-xl font-bold text-white mb-3">Automated UPI eMandate</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                No manual reminders or transfer hassles. Enjoy transparent, automated monthly subscriptions via NPCI-approved UPI AutoPay (PhonePe, GPay, Paytm) with 1-click self-serve cancellation.
               </p>
             </div>
 
-            <div className="glass-panel rounded-2xl p-8 border border-white/5 relative group hover:border-emerald-500/40 transition-all">
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-6">
+            <div className="glass-panel rounded-2xl p-8 border-slate-800/80 hover:border-indigo-500/40 transition-all bg-slate-900/40">
+              <div className="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-6 border border-indigo-500/20">
                 <ShieldCheck className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">Hacker-Proof Isolation</h3>
-              <p className="text-sm text-gray-400 leading-relaxed">
-                Even if 1 website on the internet gets attacked, your website, customer database, and orders remain 100% impenetrable thanks to our stateless Jamstack container architecture.
+              <h3 className="text-xl font-bold text-white mb-3">Air-Gapped Tenant Sandbox</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                Unlike legacy shared cPanel hosting where one infected site jeopardizes neighbors, Pixzora isolates each business in a stateless edge sandbox with Row-Level Security.
               </p>
             </div>
           </div>
@@ -160,24 +160,27 @@ export default function Home() {
       <PricingSection />
 
       {/* Footer */}
-      <footer className="py-12 border-t border-white/10 bg-[#060911] text-xs text-gray-400">
+      <footer className="py-14 border-t border-slate-800/80 bg-[#05070c] text-xs text-slate-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg gradient-accent flex items-center justify-center text-white font-bold text-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-slate-950 font-black text-xs shadow-sm">
               P
             </div>
-            <span className="font-bold text-white text-sm">Pixzora</span>
-            <span>— The ₹299/mo Website-as-a-Service Platform</span>
+            <div>
+              <span className="font-bold text-white text-sm">Pixzora</span>
+              <span className="text-slate-500 ml-2">• Fully Managed Production Web Platform</span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-6">
-            <Link href="#templates" className="hover:text-cyan-400 transition-colors">Templates</Link>
-            <Link href="#security" className="hover:text-cyan-400 transition-colors">Security</Link>
-            <Link href="#pricing" className="hover:text-cyan-400 transition-colors">Pricing</Link>
-            <Link href="/admin" className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">Admin Portal</Link>
+          <div className="flex items-center gap-6 text-slate-400 font-medium">
+            <Link href="#features" className="hover:text-sky-400 transition-colors">Features</Link>
+            <Link href="#templates" className="hover:text-sky-400 transition-colors">Showcase</Link>
+            <Link href="#security" className="hover:text-sky-400 transition-colors">Security</Link>
+            <Link href="#pricing" className="hover:text-sky-400 transition-colors">Pricing</Link>
+            <Link href="/admin" className="text-sky-400 hover:text-sky-300 font-semibold transition-colors">Admin Portal</Link>
           </div>
 
-          <p>© {new Date().getFullYear()} Pixzora Technologies. All rights reserved.</p>
+          <p className="text-slate-500">© {new Date().getFullYear()} Pixzora Technologies. Engineered for Reliability.</p>
         </div>
       </footer>
     </div>

@@ -2,19 +2,19 @@ import { Shield, Lock, Server, Cpu, Database, CheckCircle2 } from 'lucide-react'
 
 export default function SecuritySection() {
   return (
-    <section id="security" className="py-24 relative bg-gradient-to-b from-[#090d16] via-[#0c1220] to-[#090d16] border-y border-white/5">
+    <section id="security" className="py-24 relative bg-[#070b13] border-y border-slate-800/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-4 border border-emerald-500/20">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900/80 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-4 border border-emerald-500/20 shadow-sm">
             <Shield className="w-3.5 h-3.5" /> Total Tenant Isolation Protocol
           </div>
           <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight mb-4">
-            If 1 Site Gets Attacked, The Other 99+ Are <span className="gradient-text">100% Untouched</span>
+            Zero Cross-Site Intrusion Risk. <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-sky-300">100% Air-Gapped.</span>
           </h2>
-          <p className="text-gray-400 text-base sm:text-lg">
-            Say goodbye to shared WordPress vulnerabilities. Pixzora runs on an air-gapped Jamstack architecture where every client exists inside an isolated edge container.
+          <p className="text-slate-400 text-base sm:text-lg">
+            Say goodbye to shared WordPress vulnerabilities. Pixzora runs on an immutable edge architecture where every client exists inside an isolated cryptographic sandbox.
           </p>
         </div>
 

@@ -8,43 +8,43 @@ export default function PricingSection() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
 
   return (
-    <section id="pricing" className="py-24 relative overflow-hidden">
+    <section id="pricing" className="py-24 relative overflow-hidden bg-[#06090f] border-t border-slate-800/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-4 border border-cyan-500/20">
-            <Zap className="w-3.5 h-3.5" /> 100% Transparent Pricing
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900/80 text-sky-400 text-xs font-semibold uppercase tracking-wider mb-4 border border-slate-700/60 shadow-sm">
+            <Zap className="w-3.5 h-3.5" /> Transparent Pricing Architecture
           </div>
           <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight mb-4">
-            A Complete Online Presence for <span className="gradient-text">₹299/Month</span>
+            Production Website & Ops for <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-300 to-indigo-300">₹299/Month Flat</span>
           </h2>
-          <p className="text-gray-400 text-base sm:text-lg">
-            No massive upfront design agencies charging ₹25,000+. Zero hidden server fees. Recurring bank deduction via automated UPI AutoPay.
+          <p className="text-slate-400 text-base sm:text-lg">
+            No capital expenditure. No ₹25,000 upfront agency invoices. Fully automated bank billing with zero lock-in contracts.
           </p>
 
           {/* Toggle */}
-          <div className="inline-flex items-center p-1.5 rounded-2xl bg-white/5 border border-white/10 mt-8">
+          <div className="inline-flex items-center p-1.5 rounded-2xl bg-slate-900/80 border border-slate-800 mt-8 shadow-inner">
             <button
               onClick={() => setBillingCycle('monthly')}
-              className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
+              className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                 billingCycle === 'monthly'
-                  ? 'bg-cyan-500 text-black shadow-lg shadow-cyan-500/30'
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-sky-500 text-slate-950 shadow-md shadow-sky-500/25'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
               Monthly Subscription
             </button>
             <button
               onClick={() => setBillingCycle('yearly')}
-              className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 ${
                 billingCycle === 'yearly'
-                  ? 'bg-cyan-500 text-black shadow-lg shadow-cyan-500/30'
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-sky-500 text-slate-950 shadow-md shadow-sky-500/25'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
-              Annual Plan
-              <span className="text-[10px] bg-emerald-500 text-black px-2 py-0.5 rounded-full font-bold">
+              Annual Billing
+              <span className="text-[10px] bg-emerald-500 text-slate-950 px-2 py-0.5 rounded-full font-bold">
                 2 Mo Free + Free .com Domain
               </span>
             </button>
@@ -55,90 +55,84 @@ export default function PricingSection() {
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
           
           {/* Card 1: Standard ₹299/mo Plan */}
-          <div className="rounded-3xl p-8 glass-panel border border-cyan-500/30 relative flex flex-col justify-between shadow-2xl shadow-cyan-500/10 ring-1 ring-cyan-500/30">
-            <div className="absolute -top-3.5 right-6 px-3 py-1 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-black text-xs font-bold uppercase tracking-wider shadow-md">
-              Most Popular
+          <div className="rounded-3xl p-8 glass-panel border border-sky-500/40 relative flex flex-col justify-between shadow-2xl shadow-sky-500/5 bg-slate-900/60 ring-1 ring-sky-500/30">
+            <div className="absolute -top-3.5 right-6 px-3.5 py-1 rounded-full bg-gradient-to-r from-sky-400 to-blue-600 text-slate-950 text-xs font-bold uppercase tracking-wider shadow-md">
+              Enterprise Managed
             </div>
 
             <div>
               <div className="mb-6">
-                <h3 className="text-xl font-bold text-white mb-1">Pixzora Launchpad</h3>
-                <p className="text-xs text-gray-400">Everything needed to establish, run, and scale your brand</p>
+                <h3 className="text-xl font-bold text-white mb-1">Pixzora Managed Tier</h3>
+                <p className="text-xs text-slate-400">Complete design, hosting, edge CDN & ongoing maintenance</p>
               </div>
 
               {/* Price display */}
-              <div className="flex items-baseline gap-2 mb-6 pb-6 border-b border-white/10">
-                <span className="text-5xl font-black text-white">
+              <div className="flex items-baseline gap-2 mb-6 pb-6 border-b border-slate-800">
+                <span className="text-5xl font-extrabold text-white">
                   {billingCycle === 'monthly' ? '₹299' : '₹2,990'}
                 </span>
-                <span className="text-sm text-gray-400">
+                <span className="text-sm text-slate-400">
                   {billingCycle === 'monthly' ? '/ month' : '/ year (save ₹600)'}
                 </span>
               </div>
 
               {/* AutoPay highlight */}
-              <div className="p-4 rounded-xl bg-cyan-950/40 border border-cyan-500/20 mb-6 flex items-start gap-3">
-                <CreditCard className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
+              <div className="p-4 rounded-xl bg-slate-950/80 border border-sky-500/20 mb-6 flex items-start gap-3">
+                <CreditCard className="w-5 h-5 text-sky-400 shrink-0 mt-0.5" />
                 <div className="text-xs">
-                  <p className="text-cyan-200 font-semibold mb-0.5">UPI AutoPay / eMandate Enabled</p>
-                  <p className="text-gray-400">
-                    Recurring auto-debit directly via PhonePe, GPay, Paytm, or Netbanking. Zero manual hassle every 30 days. Cancel anytime.
+                  <p className="text-sky-300 font-semibold mb-0.5">NPCI Approved UPI AutoPay / eMandate</p>
+                  <p className="text-slate-400">
+                    Automated bank deduction via PhonePe, GPay, Paytm, or Netbanking. Zero manual hassle every 30 days. Cancel anytime with 1-click.
                   </p>
                 </div>
               </div>
 
               {/* Feature Checklist */}
-              <ul className="space-y-3.5 mb-8 text-sm text-gray-300">
+              <ul className="space-y-3.5 mb-8 text-sm text-slate-300">
                 <li className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
                     <Check className="w-3.5 h-3.5" />
                   </div>
-                  <span><strong>100% Done-For-You Setup:</strong> Hum complete website banakar live denge</span>
+                  <span><strong>100% Turnkey Setup:</strong> Complete custom site built by engineers</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
                     <Check className="w-3.5 h-3.5" />
                   </div>
-                  <span><strong>Zero Hosting Charges:</strong> Cloudflare Edge Hosting (unlimited bandwidth free)</span>
+                  <span><strong>Unlimited Edge Bandwidth:</strong> High-speed Cloudflare global delivery</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
                     <Check className="w-3.5 h-3.5" />
                   </div>
-                  <span><strong>Free Official Subdomain:</strong> <code>yourbrand.pages.dev</code> included</span>
+                  <span><strong>Complimentary Subdomain:</strong> <code>yourbrand.pages.dev</code> with SSL</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
                     <Check className="w-3.5 h-3.5" />
                   </div>
-                  <span><strong>Custom E-Commerce & WhatsApp Orders:</strong> Direct payment & delivery alerts</span>
+                  <span><strong>Continuous Maintenance:</strong> Content & product updates handled</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
                     <Check className="w-3.5 h-3.5" />
                   </div>
-                  <span><strong>Continuous Maintenance:</strong> Content updates, menu & product changes included</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-                    <Check className="w-3.5 h-3.5" />
-                  </div>
-                  <span><strong>Bank-Grade Security & Isolation:</strong> Dedicated database partitioning via Supabase</span>
+                  <span><strong>Air-Gapped Isolation:</strong> Isolated tenant database on Supabase</span>
                 </li>
               </ul>
             </div>
 
             <Link
               href="/onboarding"
-              className="w-full py-4 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-extrabold text-sm text-center shadow-lg shadow-cyan-500/30 transition-all flex items-center justify-center gap-2 group"
+              className="w-full py-4 rounded-xl bg-gradient-to-r from-sky-400 to-blue-600 hover:from-sky-300 hover:to-blue-500 text-slate-950 font-bold text-sm text-center shadow-lg shadow-sky-500/20 transition-all flex items-center justify-center gap-2 group"
             >
-              Start ₹299/mo Subscription
+              Start Managed Subscription
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
           {/* Card 2: FAQ & Guarantee Box */}
-          <div className="rounded-3xl p-8 glass-panel border border-white/10 flex flex-col justify-between">
+          <div className="rounded-3xl p-8 glass-panel border border-slate-800/80 bg-slate-900/40 flex flex-col justify-between shadow-xl">
             <div>
               <div className="flex items-center gap-2 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-2">
                 <HelpCircle className="w-4 h-4" /> Clear Answers
