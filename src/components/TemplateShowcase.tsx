@@ -11,6 +11,7 @@ import {
   Briefcase, 
   Camera, 
   Utensils, 
+  Factory,
   ArrowRight,
   Eye
 } from 'lucide-react';
@@ -44,6 +45,7 @@ export default function TemplateShowcase() {
           <div className="flex flex-wrap items-center justify-center gap-2 mt-8">
             {[
               { id: 'all', label: 'All Designs' },
+              { id: 'industrial', label: 'Industrial & B2B' },
               { id: 'ecommerce', label: 'E-Commerce & Store' },
               { id: 'service', label: 'Services & Clinics' },
               { id: 'portfolio', label: 'Creators & Portfolios' },
@@ -84,6 +86,7 @@ export default function TemplateShowcase() {
                     {template.badge}
                   </span>
                   <div className="text-gray-400">
+                    {template.category === 'industrial' && <Factory className="w-4 h-4 text-amber-500" />}
                     {template.category === 'ecommerce' && <ShoppingBag className="w-4 h-4 text-emerald-400" />}
                     {template.category === 'service' && <Briefcase className="w-4 h-4 text-blue-400" />}
                     {template.category === 'portfolio' && <Camera className="w-4 h-4 text-purple-400" />}

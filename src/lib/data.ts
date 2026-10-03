@@ -1,7 +1,7 @@
 export interface WebsiteTemplate {
   id: string;
   name: string;
-  category: 'ecommerce' | 'service' | 'portfolio' | 'restaurant';
+  category: 'ecommerce' | 'service' | 'portfolio' | 'restaurant' | 'industrial';
   tagline: string;
   description: string;
   badge: string;
@@ -30,6 +30,17 @@ export interface ClientWebsiteData {
 }
 
 export const POPULAR_TEMPLATES: WebsiteTemplate[] = [
+  {
+    id: 'doma-fabricators',
+    name: 'DOMA Fabricators',
+    category: 'industrial',
+    tagline: 'Industrial Steel Fabrication, Piping Works & Equipment Erection',
+    description: 'High-ticket B2B engineering website with plant capabilities, ISO 45001 certification badge, machinery catalog, and direct RFQ quotation requests.',
+    badge: 'Enterprise / Heavy Industry',
+    features: ['Instant B2B Project RFQ Form', 'Industrial Services Portfolio', 'ISO 45001 & Compliance Badges', 'Direct WhatsApp / Call Routing'],
+    previewUrl: '/preview/doma-fabricators',
+    colorTheme: 'from-orange-500 to-red-700'
+  },
   {
     id: 'store-express',
     name: 'QuickShop Pro',
