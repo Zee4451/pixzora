@@ -241,7 +241,7 @@ export default function DedicatedClientStore({ tenantSlug }: ClientSiteProps) {
             </p>
           </div>
           <a
-            href="https://wa.me/917895085816?text=Hi%20Pixzora%2C%20my%20store%20is%20suspended.%20Need%20help%20reactivating%20it."
+            href="https://wa.me/916265413244?text=Hi%20Pixzora%2C%20my%20store%20is%20suspended.%20Need%20help%20reactivating%20it."
             target="_blank"
             rel="noopener noreferrer"
             className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-red-500/20 transition-all"
