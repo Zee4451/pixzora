@@ -15,7 +15,8 @@ import {
   QrCode, 
   Sparkles,
   ExternalLink,
-  ShieldCheck
+  ShieldCheck,
+  AlertOctagon
 } from 'lucide-react';
 
 interface ClientSiteProps {
@@ -207,6 +208,46 @@ export default function DedicatedClientStore({ tenantSlug }: ClientSiteProps) {
             className="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs"
           >
             Powered by Pixzora (₹299/mo)
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle Suspended Tenant
+  if (tenant.status === 'suspended') {
+    return (
+      <div className="min-h-screen bg-[#070a12] text-white flex items-center justify-center p-4">
+        <div className="glass-panel p-8 sm:p-10 rounded-3xl border border-red-500/30 text-center max-w-lg shadow-2xl shadow-red-500/10 backdrop-blur-xl bg-black/60">
+          <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto mb-6 text-red-400 shadow-inner">
+            <AlertOctagon className="w-8 h-8" />
+          </div>
+          <span className="px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 font-mono text-[11px] uppercase tracking-wider">
+            Access Restricted
+          </span>
+          <h2 className="text-2xl font-black text-white mt-4 mb-2">
+            Website Temporarily Suspended
+          </h2>
+          <p className="text-sm text-gray-300 mb-6 leading-relaxed">
+            The website for <span className="text-white font-bold">{tenant.name}</span> (<span className="text-cyan-400 font-mono">{tenantSlug}.pages.dev</span>) has been temporarily placed on hold by the administrator.
+          </p>
+          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-xs text-gray-400 mb-6 text-left space-y-2">
+            <div className="flex items-center gap-2 text-gray-300 font-medium">
+              <span className="w-2 h-2 rounded-full bg-amber-400" />
+              <span>Are you the store owner?</span>
+            </div>
+            <p className="text-[11px] leading-relaxed">
+              Please contact Pixzora Support or check your billing dashboard to reactivate your store services immediately.
+            </p>
+          </div>
+          <a
+            href="https://wa.me/917895085816?text=Hi%20Pixzora%2C%20my%20store%20is%20suspended.%20Need%20help%20reactivating%20it."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-red-500/20 transition-all"
+          >
+            <MessageCircle className="w-4 h-4" />
+            <span>Contact Pixzora Support</span>
           </a>
         </div>
       </div>
