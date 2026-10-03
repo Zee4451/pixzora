@@ -99,10 +99,10 @@ export default function DomaFabricatorsPreview() {
       </div>
 
       {/* Embedded Live Netlify Website */}
-      <div className="flex-1 flex items-center justify-center p-2 sm:p-4 bg-[#05070c] overflow-hidden">
+      <div className="flex-1 flex items-center justify-center p-2 sm:p-4 bg-[#05070c]">
         <div 
-          className={`w-full h-[calc(100vh-100px)] rounded-2xl overflow-hidden border border-white/15 bg-black shadow-2xl transition-all duration-300 ${
-            deviceMode === 'mobile' ? 'max-w-[420px] max-h-[820px] border-orange-500/30 shadow-orange-900/20' : 'max-w-[100%]'
+          className={`w-full h-[88vh] min-h-[700px] rounded-2xl overflow-hidden border border-white/15 bg-black shadow-2xl transition-all duration-300 ${
+            deviceMode === 'mobile' ? 'max-w-[420px] max-h-[850px] border-orange-500/30 shadow-orange-900/20' : 'max-w-[100%]'
           }`}
         >
           {/* Simulated Browser Address Pill */}

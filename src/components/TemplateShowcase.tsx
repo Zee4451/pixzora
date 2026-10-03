@@ -185,7 +185,7 @@ export default function TemplateShowcase() {
             </div>
 
             {/* Embedded Iframe / Live Preview */}
-            <div className="relative h-[480px] w-full bg-slate-950">
+            <div className="relative h-[680px] sm:h-[780px] w-full bg-slate-950">
               <iframe
                 src={`/preview/${activePreview.id}`}
                 title={activePreview.name}
