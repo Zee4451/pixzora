@@ -10,10 +10,10 @@ export default function CreatorLuxeDemo() {
       <div className="bg-purple-950/60 border-b border-purple-500/20 px-4 py-2 text-center text-xs flex items-center justify-between text-purple-300">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
-          <span>Client Site: <strong>devlens.pixoraplan.com</strong></span>
+          <span>Client Site: <strong>devlens.pages.dev</strong></span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[11px] text-gray-400">Powered by PixoraPlan @ ₹299/mo</span>
+          <span className="text-[11px] text-gray-400">Powered by Pixzora @ ₹299/mo</span>
           <Link href="/onboarding?template=creator-luxe" className="bg-purple-500 text-white px-2.5 py-0.5 rounded font-bold text-[10px]">
             Use This Template
           </Link>

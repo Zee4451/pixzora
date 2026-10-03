@@ -13,7 +13,7 @@ export default function ZeroCostBlueprintPage() {
             <DollarSign className="w-3.5 h-3.5" /> ₹0 Initial Investment Blueprint
           </div>
           <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight mb-4">
-            How PixoraPlan Operates at <span className="gradient-text">100% Free Initial Cost</span>
+            How Pixzora Operates at <span className="gradient-text">100% Free Initial Cost</span>
           </h1>
           <p className="text-gray-400 text-base sm:text-lg">
             You don&apos;t need to spend a single rupee to start. From hosting to databases, subdomains, and payments, every component runs on generous free commercial tiers until you generate revenue.
@@ -48,7 +48,7 @@ export default function ZeroCostBlueprintPage() {
             </div>
             <h3 className="text-xl font-bold text-white mb-2">Free Unlimited Subdomains</h3>
             <p className="text-xs text-gray-300 leading-relaxed mb-4">
-              You provide every client their own branded address like <code>clientname.pixoraplan.com</code>. Cloudflare DNS handles unlimited subdomains for free. Clients can also point their own existing domains for ₹0.
+              You provide every client their own branded address like <code>clientname.pages.dev</code>. Cloudflare DNS handles unlimited subdomains for free. Clients can also point their own existing domains for ₹0.
             </p>
             <div className="p-3 rounded-xl bg-white/5 text-xs text-gray-400 space-y-1">
               <div>✓ Zero domain registration fee needed</div>

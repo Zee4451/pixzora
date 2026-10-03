@@ -29,10 +29,10 @@ export default function ServiceFlowDemo() {
       <div className="bg-blue-950/60 border-b border-blue-500/20 px-4 py-2 text-center text-xs flex items-center justify-between text-blue-300">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
-          <span>Client Site: <strong>vanguardgym.pixoraplan.com</strong></span>
+          <span>Client Site: <strong>vanguardgym.pages.dev</strong></span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[11px] text-gray-400">Powered by PixoraPlan @ ₹299/mo</span>
+          <span className="text-[11px] text-gray-400">Powered by Pixzora @ ₹299/mo</span>
           <Link href="/onboarding?template=service-flow" className="bg-blue-500 text-white px-2.5 py-0.5 rounded font-bold text-[10px]">
             Use This Template
           </Link>
@@ -119,7 +119,7 @@ export default function ServiceFlowDemo() {
       {/* Footer */}
       <footer className="mt-16 py-8 border-t border-white/5 text-center text-xs text-gray-500">
         <p>© 2026 Vanguard Fitness. All rights reserved.</p>
-        <p className="mt-1">Built with PixoraPlan @ ₹299/mo</p>
+        <p className="mt-1">Built with Pixzora @ ₹299/mo</p>
       </footer>
     </div>
   );

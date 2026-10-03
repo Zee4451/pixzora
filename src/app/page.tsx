@@ -104,7 +104,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Feature Highlights: Why PixoraPlan @ ₹299 */}
+      {/* Feature Highlights: Why Pixzora @ ₹299 */}
       <section id="features" className="py-20 bg-[#070b13] border-t border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
@@ -123,7 +123,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-bold text-white mb-3">Free Domain & Edge Hosting</h3>
               <p className="text-sm text-gray-400 leading-relaxed">
-                Receive an instant free subdomain (e.g. <code>yourname.pixoraplan.com</code>) with free SSL and edge CDN speed. Easily link your custom <code>.com</code> or <code>.in</code> whenever you choose.
+                Receive an instant free subdomain (e.g. <code>yourname.pages.dev</code>) with free SSL and edge CDN speed. Easily link your custom <code>.com</code> or <code>.in</code> whenever you choose.
               </p>
             </div>
 
@@ -166,7 +166,7 @@ export default function Home() {
             <div className="w-6 h-6 rounded-lg gradient-accent flex items-center justify-center text-white font-bold text-xs">
               P
             </div>
-            <span className="font-bold text-white text-sm">PixoraPlan</span>
+            <span className="font-bold text-white text-sm">Pixzora</span>
             <span>— The ₹299/mo Website-as-a-Service Platform</span>
           </div>
 
@@ -177,7 +177,7 @@ export default function Home() {
             <Link href="/admin" className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">Admin Portal</Link>
           </div>
 
-          <p>© {new Date().getFullYear()} PixoraPlan Technologies. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Pixzora Technologies. All rights reserved.</p>
         </div>
       </footer>
     </div>

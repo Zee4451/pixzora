@@ -464,7 +464,7 @@ function OnboardingContent() {
                   <div className="flex items-center justify-between text-sm pb-3 border-b border-white/10">
                     <span className="text-gray-400">Domain URL:</span>
                     <span className="font-mono text-cyan-400">
-                      https://{formData.subdomain || 'mybrand'}.pixoraplan.com
+                      https://{formData.subdomain || 'mybrand'}.pages.dev
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm pb-3 border-b border-white/10">
@@ -551,7 +551,7 @@ function OnboardingContent() {
                     <div className="p-3 bg-white rounded-xl shadow-lg shrink-0">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=upi://pay?pa=pixoraplan@upi%26pn=PixoraPlan%26am=299%26cu=INR"
+                        src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=upi://pay?pa=pixzora@upi%26pn=Pixzora%26am=299%26cu=INR"
                         alt="UPI QR Code"
                         className="w-28 h-28"
                       />
@@ -565,7 +565,7 @@ function OnboardingContent() {
                         Scan using GPay, PhonePe, Paytm or BHIM. Direct to your UPI ID without paying payment gateway commission.
                       </p>
                       <div className="font-mono text-cyan-400 text-xs bg-black/40 px-3 py-1.5 rounded-lg border border-white/10 inline-block">
-                        UPI ID: pixoraplan@upi
+                        UPI ID: pixzora@upi
                       </div>
                     </div>
                   </div>
@@ -655,7 +655,7 @@ export default function OnboardingPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-[#090d16] text-white flex items-center justify-center text-sm text-cyan-400">
-        Loading PixoraPlan Onboarding...
+        Loading Pixzora Onboarding...
       </div>
     }>
       <OnboardingContent />

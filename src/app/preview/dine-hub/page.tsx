@@ -10,10 +10,10 @@ export default function DineHubDemo() {
       <div className="bg-amber-950/60 border-b border-amber-500/20 px-4 py-2 text-center text-xs flex items-center justify-between text-amber-300">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-          <span>Client Site: <strong>rusticcrust.pixoraplan.com</strong></span>
+          <span>Client Site: <strong>rusticcrust.pages.dev</strong></span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[11px] text-gray-400">Powered by PixoraPlan @ ₹299/mo</span>
+          <span className="text-[11px] text-gray-400">Powered by Pixzora @ ₹299/mo</span>
           <Link href="/onboarding?template=dine-hub" className="bg-amber-500 text-black px-2.5 py-0.5 rounded font-bold text-[10px]">
             Use This Template
           </Link>

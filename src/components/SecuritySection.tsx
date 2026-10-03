@@ -14,7 +14,7 @@ export default function SecuritySection() {
             If 1 Site Gets Attacked, The Other 99+ Are <span className="gradient-text">100% Untouched</span>
           </h2>
           <p className="text-gray-400 text-base sm:text-lg">
-            Say goodbye to shared WordPress vulnerabilities. PixoraPlan runs on an air-gapped Jamstack architecture where every client exists inside an isolated edge container.
+            Say goodbye to shared WordPress vulnerabilities. Pixzora runs on an air-gapped Jamstack architecture where every client exists inside an isolated edge container.
           </p>
         </div>
 
@@ -50,7 +50,7 @@ export default function SecuritySection() {
             </ul>
           </div>
 
-          {/* PixoraPlan Isolated Edge Architecture */}
+          {/* Pixzora Isolated Edge Architecture */}
           <div className="rounded-2xl p-8 bg-emerald-950/20 border border-emerald-500/30 relative overflow-hidden shadow-xl shadow-emerald-500/5">
             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
             <div className="flex items-center gap-3 mb-6">
@@ -58,7 +58,7 @@ export default function SecuritySection() {
                 ✓
               </span>
               <div>
-                <h3 className="text-lg font-bold text-white">PixoraPlan Zero-Trust Edge Isolation</h3>
+                <h3 className="text-lg font-bold text-white">Pixzora Zero-Trust Edge Isolation</h3>
                 <p className="text-xs text-emerald-300">Air-Gapped & Immutable Static Architecture</p>
               </div>
             </div>

@@ -144,7 +144,7 @@ export default function TemplateShowcase() {
                 </h4>
               </div>
               <p className="text-xs text-gray-400 mt-1">
-                Subdomain: <code className="text-indigo-300 bg-white/5 px-2 py-0.5 rounded">mybrand.pixoraplan.com</code> (Free SSL + Edge Hosting included)
+                Subdomain: <code className="text-indigo-300 bg-white/5 px-2 py-0.5 rounded">mybrand.pixzora.pages.dev</code> (Free SSL + Edge Hosting included)
               </p>
             </div>
             
@@ -177,7 +177,7 @@ export default function TemplateShowcase() {
                 <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
               </div>
               <div className="mx-auto w-full max-w-sm h-6 bg-black/40 rounded-md border border-white/5 flex items-center justify-center text-[11px] text-gray-400 font-mono">
-                🔒 https://demo-{activePreview.id}.pixoraplan.com
+                🔒 https://demo-{activePreview.id}.pixzora.pages.dev
               </div>
             </div>
 

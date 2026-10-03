@@ -163,14 +163,14 @@ export default function PricingSection() {
                 <div>
                   <h4 className="font-bold text-white text-sm mb-1">Can I use my existing domain name?</h4>
                   <p className="text-gray-400 leading-relaxed">
-                    Absolutely. You get a free subdomain (e.g. <code>mybrand.pixoraplan.com</code>) instantly, and if you already own a <code>.com</code> or <code>.in</code> domain, we map it to your website at ₹0 extra charge.
+                    Absolutely. You get a free subdomain (e.g. <code>mybrand.pages.dev</code>) instantly, and if you already own a <code>.com</code> or <code>.in</code> domain, we map it to your website at ₹0 extra charge.
                   </p>
                 </div>
 
                 <div>
                   <h4 className="font-bold text-white text-sm mb-1">What if another client's website gets attacked?</h4>
                   <p className="text-gray-400 leading-relaxed">
-                    Impossible to affect you. Unlike old shared cPanel hosts where 1 site can compromise all sites, each PixoraPlan website runs in its own isolated static container and isolated database space.
+                    Impossible to affect you. Unlike old shared cPanel hosts where 1 site can compromise all sites, each Pixzora website runs in its own isolated static container and isolated database space.
                   </p>
                 </div>
               </div>

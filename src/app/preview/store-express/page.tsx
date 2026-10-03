@@ -87,10 +87,10 @@ export default function StoreExpressDemo() {
       <div className="bg-emerald-950/60 border-b border-emerald-500/20 px-4 py-2 text-center text-xs flex items-center justify-between text-emerald-300">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>Client Site: <strong>auraskincare.pixoraplan.com</strong></span>
+          <span>Client Site: <strong>auraskincare.pages.dev</strong></span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[11px] text-gray-400">Powered by PixoraPlan @ ₹299/mo</span>
+          <span className="text-[11px] text-gray-400">Powered by Pixzora @ ₹299/mo</span>
           <Link href="/onboarding?template=store-express" className="bg-emerald-400 text-black px-2.5 py-0.5 rounded font-bold text-[10px]">
             Use This Template
           </Link>
@@ -219,7 +219,7 @@ export default function StoreExpressDemo() {
       {/* Footer */}
       <footer className="mt-20 py-8 border-t border-white/5 text-center text-xs text-gray-500">
         <p>© 2026 Aura Skincare. All rights reserved.</p>
-        <p className="mt-1">Hosted on Cloudflare Pages via PixoraPlan</p>
+        <p className="mt-1">Hosted on Cloudflare Pages via Pixzora</p>
       </footer>
     </div>
   );
