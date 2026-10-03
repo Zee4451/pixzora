@@ -207,7 +207,7 @@ export default function DedicatedClientStore({ tenantSlug }: ClientSiteProps) {
             href="https://pixzora.pages.dev"
             className="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs"
           >
-            Powered by Pixzora (₹299/mo)
+            Visit Pixzora Platform
           </a>
         </div>
       </div>
@@ -524,9 +524,9 @@ export default function DedicatedClientStore({ tenantSlug }: ClientSiteProps) {
             href="https://pixzora.pages.dev"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-gray-400 hover:text-cyan-400 flex items-center gap-1 transition-colors"
+            className="text-gray-500 hover:text-cyan-400 flex items-center gap-1 transition-colors text-[11px]"
           >
-            Powered by <strong className="text-cyan-400 font-bold">Pixzora</strong> (Website at ₹299/mo)
+            Powered by <strong className="text-cyan-400/90 font-bold">Pixzora</strong>
           </a>
         </div>
       </footer>
