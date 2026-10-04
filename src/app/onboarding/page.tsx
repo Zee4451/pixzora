@@ -58,6 +58,8 @@ function OnboardingContent() {
   const [selectedUpi, setSelectedUpi] = useState(upiList[0].id);
   const [utrNumber, setUtrNumber] = useState('');
   const [copiedUpi, setCopiedUpi] = useState(false);
+  const [razorpayPaymentId, setRazorpayPaymentId] = useState('');
+  const [razorpayWindowOpened, setRazorpayWindowOpened] = useState(false);
 
   const [slugSuggestions, setSlugSuggestions] = useState<string[]>([]);
 
@@ -214,42 +216,8 @@ function OnboardingContent() {
 
     // A. If direct Razorpay Subscription Link is active (https://rzp.io/rzp/e5rMWCK)
     if (subLink) {
-      setIsProcessingPayment(true);
-      try {
-        const cleanSlug = formData.subdomain.toLowerCase().replace(/[^a-z0-9-]/g, '');
-        const mappedType = formData.category === 'restaurant' ? 'restaurant' : formData.category === 'service' ? 'services' : formData.category === 'portfolio' ? 'portfolio' : 'ecommerce';
-
-        // Pre-reserve domain in Supabase with status: 'inactive'
-        const ownerLabel = formData.ownerName 
-          ? `${formData.ownerName} [Razorpay Sub Link: e5rMWCK]` 
-          : `[Razorpay Sub Link: e5rMWCK]`;
-
-        await supabase.from('tenants').insert([
-          {
-            name: formData.businessName,
-            slug: cleanSlug,
-            business_type: mappedType,
-            owner_name: ownerLabel,
-            phone: formData.phone,
-            email: formData.email,
-            monthly_price: 299,
-            status: 'inactive', // Locked until verified
-            subscription_status: 'due',
-          }
-        ]);
-
-        // Open official Razorpay Recurring Subscription Checkout in new tab
-        window.open(subLink, '_blank');
-
-        setActivationMode('pending_verification');
-        setMandateSuccess(true);
-        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-      } catch (err: any) {
-        console.error('Error initiating Razorpay checkout:', err);
-        window.open(subLink, '_blank');
-      } finally {
-        setIsProcessingPayment(false);
-      }
+      window.open(subLink, '_blank');
+      setRazorpayWindowOpened(true);
       return;
     }
 
@@ -343,6 +311,47 @@ function OnboardingContent() {
 
     const rzp = new (window as any).Razorpay(options);
     rzp.open();
+  };
+
+  const handleRazorpayPaidConfirmation = async () => {
+    const cleanPayId = razorpayPaymentId.trim();
+    if (!cleanPayId || cleanPayId.length < 5) {
+      alert('Please enter your Razorpay Payment ID or Transaction Reference (shown on Razorpay receipt screen).');
+      return;
+    }
+
+    setIsProcessingPayment(true);
+    try {
+      const cleanSlug = formData.subdomain.toLowerCase().replace(/[^a-z0-9-]/g, '');
+      const mappedType = formData.category === 'restaurant' ? 'restaurant' : formData.category === 'service' ? 'services' : formData.category === 'portfolio' ? 'portfolio' : 'ecommerce';
+
+      const ownerLabel = formData.ownerName 
+        ? `${formData.ownerName} [Razorpay: ${cleanPayId}]` 
+        : `[Razorpay: ${cleanPayId}]`;
+
+      await supabase.from('tenants').insert([
+        {
+          name: formData.businessName,
+          slug: cleanSlug,
+          business_type: mappedType,
+          owner_name: ownerLabel,
+          phone: formData.phone,
+          email: formData.email,
+          monthly_price: 299,
+          status: 'inactive', // Locked until verified
+          subscription_status: 'due',
+        }
+      ]);
+
+      setActivationMode('pending_verification');
+      setMandateSuccess(true);
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    } catch (err: any) {
+      console.error('Error confirming Razorpay payment:', err);
+      alert('Error logging payment: ' + err.message);
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
 
   return (
@@ -807,20 +816,71 @@ function OnboardingContent() {
                     <div className="p-4 rounded-xl bg-cyan-950/30 border border-cyan-500/30 flex items-start gap-3">
                       <Lock className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
                       <div className="text-xs text-gray-300 space-y-1">
-                        <p className="font-bold text-white">Instant 100% Automated Gateway Verification</p>
+                        <p className="font-bold text-white">NPCI & RBI Compliant Recurring Subscription</p>
                         <p>
-                          Pay securely via Razorpay with Debit/Credit Card, NetBanking, or UPI AutoPay. Upon payment completion, your domain will be activated and deployed automatically.
+                          Supports GPay, PhonePe, Paytm (on mobile) and Visa, Mastercard, RuPay cards. Subscriptions are billed automatically @ ₹299/mo with zero setup cost.
                         </p>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {['Google Pay', 'PhonePe', 'Paytm UPI', 'Visa / Mastercard'].map((provider, i) => (
-                        <div key={i} className="rounded-xl p-3 bg-white/5 border border-white/10 text-center text-xs font-semibold text-gray-300">
-                          {provider}
+                    {!razorpayWindowOpened ? (
+                      <div className="p-5 rounded-2xl bg-white/5 border border-white/10 text-center space-y-3">
+                        <p className="text-xs text-gray-300">
+                          Click below to open the secure Razorpay Subscription checkout window.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={handleRazorpayCheckout}
+                          className="px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs shadow-lg shadow-cyan-500/25 transition-all inline-flex items-center gap-2 cursor-pointer"
+                        >
+                          <CreditCard className="w-4 h-4" />
+                          Open ₹299 Razorpay Subscription Window
+                        </button>
+                        <p className="text-[11px] text-gray-400">
+                          Note: If paying from laptop, ensure your card has online recurring/eMandate enabled, or open on mobile to use UPI.
+                        </p>
+                      </div>
+                    ) : (
+                      /* Post-click verification prompt: No fake success until ID entered! */
+                      <div className="p-5 rounded-2xl bg-slate-900 border border-cyan-500/40 space-y-4">
+                        <div className="flex items-center gap-2 text-cyan-400">
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span className="text-xs font-bold uppercase tracking-wider">
+                            Razorpay Window Opened in New Tab
+                          </span>
                         </div>
-                      ))}
-                    </div>
+                        <p className="text-xs text-gray-300">
+                          Complete your subscription setup in the Razorpay tab. Once finished, enter your <strong>Razorpay Payment ID / Subscription ID</strong> below to lock your domain:
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input
+                            type="text"
+                            placeholder="e.g. pay_XXXXX or sub_XXXXX"
+                            value={razorpayPaymentId}
+                            onChange={(e) => setRazorpayPaymentId(e.target.value)}
+                            className="flex-1 px-4 py-2.5 rounded-xl bg-black/60 border border-white/10 text-white placeholder-gray-500 text-xs font-mono focus:outline-none focus:border-cyan-400"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleRazorpayPaidConfirmation}
+                            disabled={isProcessingPayment || !razorpayPaymentId.trim()}
+                            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-indigo-500 text-black font-bold text-xs disabled:opacity-40 cursor-pointer"
+                          >
+                            Verify & Reserve Domain
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between text-[11px] pt-1 border-t border-white/5">
+                          <span className="text-gray-400">Did the window not open?</span>
+                          <button
+                            type="button"
+                            onClick={handleRazorpayCheckout}
+                            className="text-cyan-400 hover:underline font-semibold"
+                          >
+                            Click to Re-open Razorpay
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -833,28 +893,25 @@ function OnboardingContent() {
                     <ArrowLeft className="w-4 h-4" /> Back
                   </button>
 
-                  <button
-                    onClick={formData.autoPayMethod === 'direct_upi_qr' ? handleUpiPaymentSubmit : handleRazorpayCheckout}
-                    disabled={isProcessingPayment || (formData.autoPayMethod === 'direct_upi_qr' && (!utrNumber || utrNumber.length < 8))}
-                    className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-400 via-teal-400 to-indigo-500 text-black font-extrabold text-sm flex items-center gap-2 shadow-xl shadow-cyan-500/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:hover:scale-100 cursor-pointer"
-                  >
-                    {isProcessingPayment ? (
-                      <>
-                        <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                        Verifying Payment...
-                      </>
-                    ) : formData.autoPayMethod === 'direct_upi_qr' ? (
-                      <>
-                        <CheckCircle2 className="w-4 h-4" />
-                        Submit UTR & Reserve Domain
-                      </>
-                    ) : (
-                      <>
-                        <CreditCard className="w-4 h-4" />
-                        Pay ₹299 Online & Activate Store
-                      </>
-                    )}
-                  </button>
+                  {formData.autoPayMethod === 'direct_upi_qr' && (
+                    <button
+                      onClick={handleUpiPaymentSubmit}
+                      disabled={isProcessingPayment || !utrNumber || utrNumber.length < 8}
+                      className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-400 via-teal-400 to-indigo-500 text-black font-extrabold text-sm flex items-center gap-2 shadow-xl shadow-cyan-500/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:hover:scale-100 cursor-pointer"
+                    >
+                      {isProcessingPayment ? (
+                        <>
+                          <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                          Verifying Payment...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-4 h-4" />
+                          Submit UTR & Reserve Domain
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
               </>
             ) : (
@@ -875,12 +932,12 @@ function OnboardingContent() {
                     <div className="w-16 h-16 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-6 ring-8 ring-amber-500/10">
                       <Clock className="w-10 h-10" />
                     </div>
-                    <h2 className="text-3xl font-extrabold text-white mb-2">Payment Received — Awaiting Verification!</h2>
+                    <h2 className="text-3xl font-extrabold text-white mb-2">Payment Logged — Awaiting Verification!</h2>
                     <p className="text-sm text-gray-300 max-w-md mx-auto mb-4">
-                      Thank you! Your UTR <span className="font-mono text-amber-400 font-bold">{utrNumber}</span> has been logged.
+                      Thank you! Reference <span className="font-mono text-amber-400 font-bold">{utrNumber || razorpayPaymentId}</span> has been securely recorded.
                     </p>
                     <p className="text-xs text-gray-400 max-w-md mx-auto mb-6">
-                      Your subdomain is <strong>reserved exclusively for you</strong>. Our administrator will verify the bank deposit and activate your store within 15–30 minutes.
+                      Your subdomain is <strong>reserved exclusively for you</strong>. Our administrator will verify the deposit and activate your store within 15–30 minutes.
                     </p>
                   </>
                 )}
@@ -891,9 +948,9 @@ function OnboardingContent() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto text-left text-xs mb-8">
                   <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-                    <span className="text-gray-400 block">Payment Mode</span>
+                    <span className="text-gray-400 block">Payment Reference</span>
                     <span className="font-mono text-white">
-                      {formData.autoPayMethod === 'direct_upi_qr' ? `Direct UPI (UTR: ${utrNumber})` : 'Razorpay Verified'}
+                      {utrNumber ? `UPI UTR: ${utrNumber}` : razorpayPaymentId ? `Razorpay: ${razorpayPaymentId}` : 'Under Review'}
                     </span>
                   </div>
                   <div className="p-3 rounded-xl bg-white/5 border border-white/5">
@@ -906,12 +963,16 @@ function OnboardingContent() {
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <a
-                    href={`https://wa.me/916265413244?text=Hi%20Pixzora%2C%20I%20have%20submitted%20UTR%20${utrNumber}%20for%20my%20store%20${formData.subdomain}.pages.dev.%20Please%20verify%20and%20activate.`}
+                    href={`https://wa.me/916265413244?text=${encodeURIComponent(
+                      utrNumber 
+                        ? `Hi Pixzora, I have submitted payment with UPI UTR: ${utrNumber} for my store https://${formData.subdomain}.pages.dev. Please verify and activate.`
+                        : `Hi Pixzora, I have authorized subscription on Razorpay with Ref: ${razorpayPaymentId || 'LIVE'} for my store https://${formData.subdomain}.pages.dev. Please verify and activate.`
+                    )}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs shadow-lg shadow-emerald-500/25 transition-all flex items-center justify-center gap-2"
                   >
-                    <span>Send UTR on WhatsApp for Instant Approval</span>
+                    <span>Notify Admin on WhatsApp</span>
                   </a>
 
                   <Link
