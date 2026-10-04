@@ -3,6 +3,7 @@
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Script from 'next/script';
 import Navbar from '@/components/Navbar';
 import { POPULAR_TEMPLATES } from '@/lib/data';
 import { 
@@ -12,11 +13,14 @@ import {
   CheckCircle2, 
   Sparkles, 
   ArrowRight, 
-  ArrowLeft,
-  Shield,
-  Smartphone,
-  Check,
-  Lock
+  ArrowLeft, 
+  Shield, 
+  Smartphone, 
+  Check, 
+  Lock,
+  Copy,
+  Clock,
+  AlertCircle
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { supabase } from '@/lib/supabase';
@@ -36,13 +40,24 @@ function OnboardingContent() {
     subdomain: '',
     customDomain: '',
     selectedTemplate: initialTemplate,
-    autoPayMethod: 'upi_autopay',
+    autoPayMethod: 'direct_upi_qr',
   });
 
   const [isSubdomainAvailable, setIsSubdomainAvailable] = useState<boolean | null>(null);
   const [isCheckingDomain, setIsCheckingDomain] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [mandateSuccess, setMandateSuccess] = useState(false);
+  const [activationMode, setActivationMode] = useState<'instant' | 'pending_verification'>('pending_verification');
+
+  // Multi-UPI Support
+  const upiList = [
+    { label: 'PhonePe / YBL', id: process.env.NEXT_PUBLIC_UPI_PRIMARY || '6265413244-3@ybl' },
+    { label: 'Google Pay / SBI', id: process.env.NEXT_PUBLIC_UPI_SECONDARY || 'abzeeshankhan30-2@oksbi' },
+    { label: 'Paytm UPI', id: process.env.NEXT_PUBLIC_UPI_TERTIARY || '6265413244@ptyes' }
+  ];
+  const [selectedUpi, setSelectedUpi] = useState(upiList[0].id);
+  const [utrNumber, setUtrNumber] = useState('');
+  const [copiedUpi, setCopiedUpi] = useState(false);
 
   const [slugSuggestions, setSlugSuggestions] = useState<string[]>([]);
 
@@ -126,42 +141,166 @@ function OnboardingContent() {
     setStep(prev => prev + 1);
   };
 
-  const handleAuthorizeAutoPay = async () => {
+  // 1. DIRECT UPI QR WITH 12-DIGIT UTR SUBMISSION (LOCKED UNTIL ADMIN VERIFIED)
+  const handleUpiPaymentSubmit = async () => {
+    const cleanUtr = utrNumber.trim().replace(/[^0-9]/g, '');
+    if (!cleanUtr || cleanUtr.length < 8) {
+      alert('Please enter a valid 12-digit UPI Reference / UTR Number from your payment app (GPay/PhonePe/Paytm).');
+      return;
+    }
+
     setIsProcessingPayment(true);
-    
+
     try {
       const cleanSlug = formData.subdomain.toLowerCase().replace(/[^a-z0-9-]/g, '');
       const mappedType = formData.category === 'restaurant' ? 'restaurant' : formData.category === 'service' ? 'services' : formData.category === 'portfolio' ? 'portfolio' : 'ecommerce';
 
-      // Insert tenant into Supabase
-      const { data, error } = await supabase.from('tenants').insert([
+      // Insert tenant with status: 'inactive' (Pending Approval) so nobody gets a free domain!
+      const ownerLabel = formData.ownerName 
+        ? `${formData.ownerName} [UPI UTR: ${cleanUtr}]` 
+        : `[UPI UTR: ${cleanUtr}]`;
+
+      const { data: tenantData, error: tenantError } = await supabase.from('tenants').insert([
         {
           name: formData.businessName,
           slug: cleanSlug,
           business_type: mappedType,
-          owner_name: formData.ownerName || null,
+          owner_name: ownerLabel,
           phone: formData.phone,
           email: formData.email,
           monthly_price: 299,
-          status: 'active',
-          subscription_status: 'active',
+          status: 'inactive', // LOCKED UNTIL ADMIN APPROVES
+          subscription_status: 'due',
         }
-      ]).select();
+      ]).select().single();
 
-      if (error) {
-        console.error('Supabase error:', error);
+      if (tenantError) {
+        throw new Error(tenantError.message);
       }
-    } catch (e) {
-      console.error('Failed to save to Supabase:', e);
+
+      // Record transaction details in tenant_settings
+      if (tenantData) {
+        await supabase.from('tenant_settings').insert([
+          {
+            tenant_id: tenantData.id,
+            theme_color: '#06b6d4',
+            whatsapp_number: formData.phone,
+            upi_id: selectedUpi,
+            social_links: {
+              payment_mode: 'direct_upi_qr',
+              utr_number: cleanUtr,
+              receiver_upi: selectedUpi,
+              verification_status: 'pending_approval'
+            }
+          }
+        ]);
+      }
+
+      setActivationMode('pending_verification');
+      setMandateSuccess(true);
+      confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+    } catch (err: any) {
+      console.error('Payment submission error:', err);
+      alert('Error submitting payment details: ' + (err.message || 'Please try again.'));
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
+
+  // 2. RAZORPAY ONLINE GATEWAY PAYMENT (INSTANT AUTO-ACTIVATION ONLY ON VERIFIED SUCCESS)
+  const handleRazorpayCheckout = () => {
+    const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+    
+    // If no key configured, guide user to Direct UPI mode
+    if (!razorpayKey) {
+      alert('Razorpay Gateway is in setup mode. Please use the "Instant UPI QR" option below to pay ₹299 directly to UPI ID and enter your 12-digit UTR!');
+      setFormData(prev => ({ ...prev, autoPayMethod: 'direct_upi_qr' }));
+      return;
     }
 
-    setIsProcessingPayment(false);
-    setMandateSuccess(true);
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 }
-    });
+    if (typeof window === 'undefined' || !(window as any).Razorpay) {
+      alert('Razorpay SDK is still loading. Please check your internet connection or try in a moment.');
+      return;
+    }
+
+    setIsProcessingPayment(true);
+
+    const options = {
+      key: razorpayKey,
+      amount: 299 * 100, // ₹299 in paise
+      currency: 'INR',
+      name: 'Pixzora Platform',
+      description: `Monthly Subscription for ${formData.businessName} (${formData.subdomain}.pages.dev)`,
+      image: '/favicon.ico',
+      prefill: {
+        name: formData.ownerName || formData.businessName,
+        email: formData.email,
+        contact: formData.phone,
+      },
+      theme: {
+        color: '#06b6d4',
+      },
+      handler: async function (response: any) {
+        try {
+          const cleanSlug = formData.subdomain.toLowerCase().replace(/[^a-z0-9-]/g, '');
+          const mappedType = formData.category === 'restaurant' ? 'restaurant' : formData.category === 'service' ? 'services' : formData.category === 'portfolio' ? 'portfolio' : 'ecommerce';
+
+          const ownerLabel = formData.ownerName 
+            ? `${formData.ownerName} [Razorpay: ${response.razorpay_payment_id}]` 
+            : `[Razorpay: ${response.razorpay_payment_id}]`;
+
+          // Verified payment! Activate domain immediately
+          const { data: tenantData, error: tenantError } = await supabase.from('tenants').insert([
+            {
+              name: formData.businessName,
+              slug: cleanSlug,
+              business_type: mappedType,
+              owner_name: ownerLabel,
+              phone: formData.phone,
+              email: formData.email,
+              monthly_price: 299,
+              status: 'active',
+              subscription_status: 'active',
+            }
+          ]).select().single();
+
+          if (tenantError) throw tenantError;
+
+          if (tenantData) {
+            await supabase.from('tenant_settings').insert([
+              {
+                tenant_id: tenantData.id,
+                theme_color: '#06b6d4',
+                whatsapp_number: formData.phone,
+                social_links: {
+                  payment_mode: 'razorpay',
+                  payment_id: response.razorpay_payment_id,
+                  verification_status: 'auto_verified'
+                }
+              }
+            ]);
+          }
+
+          setActivationMode('instant');
+          setMandateSuccess(true);
+          confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+        } catch (err: any) {
+          console.error('Error saving tenant post-payment:', err);
+          alert('Payment succeeded with ID: ' + response.razorpay_payment_id + ', but database registration encountered an edge error. Contact admin with your Payment ID.');
+        } finally {
+          setIsProcessingPayment(false);
+        }
+      },
+      modal: {
+        ondismiss: function () {
+          setIsProcessingPayment(false);
+          alert('Payment was not completed. No domain has been reserved or created.');
+        }
+      }
+    };
+
+    const rzp = new (window as any).Razorpay(options);
+    rzp.open();
   };
 
   return (
@@ -440,9 +579,15 @@ function OnboardingContent() {
           </div>
         )}
 
-        {/* STEP 3: Recurring AutoPay Mandate Setup */}
+        {/* STEP 3: Payment & Mandate Gate */}
         {step === 3 && (
           <div className="glass-panel rounded-3xl p-8 border border-white/10 shadow-2xl">
+            {/* Razorpay Checkout Script */}
+            <Script 
+              src="https://checkout.razorpay.com/v1/checkout.js" 
+              strategy="lazyOnload" 
+            />
+
             {!mandateSuccess ? (
               <>
                 <div className="flex items-center gap-3 mb-6">
@@ -450,29 +595,29 @@ function OnboardingContent() {
                     <CreditCard className="w-5 h-5" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-white">Setup ₹299/mo UPI AutoPay</h2>
-                    <p className="text-xs text-gray-400">Automated recurring debit with Razorpay Subscriptions</p>
+                    <h2 className="text-2xl font-bold text-white">Activate Your Store (₹299/mo)</h2>
+                    <p className="text-xs text-gray-400">Complete payment to lock and activate your isolated domain</p>
                   </div>
                 </div>
 
                 {/* Plan Summary Card */}
                 <div className="rounded-2xl p-6 bg-slate-900/80 border border-white/10 mb-8 space-y-3">
                   <div className="flex items-center justify-between text-sm pb-3 border-b border-white/10">
-                    <span className="text-gray-400">Website Service:</span>
+                    <span className="text-gray-400">Business Service:</span>
                     <span className="font-semibold text-white">{formData.businessName || 'Your Business Website'}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm pb-3 border-b border-white/10">
-                    <span className="text-gray-400">Domain URL:</span>
+                    <span className="text-gray-400">Reserved Domain:</span>
                     <span className="font-mono text-cyan-400">
                       https://{formData.subdomain || 'mybrand'}.pages.dev
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm pb-3 border-b border-white/10">
-                    <span className="text-gray-400">Hosting & SSL:</span>
+                    <span className="text-gray-400">Hosting, SSL & DDoS Protection:</span>
                     <span className="text-emerald-400 font-semibold">100% Free Included</span>
                   </div>
                   <div className="flex items-center justify-between text-base pt-1">
-                    <span className="font-bold text-white">Monthly Subscription:</span>
+                    <span className="font-bold text-white">Monthly Cost:</span>
                     <div className="text-right">
                       <span className="text-2xl font-black text-cyan-400">₹299</span>
                       <span className="text-xs text-gray-400"> / month</span>
@@ -483,27 +628,9 @@ function OnboardingContent() {
                 {/* Payment Mode Selector */}
                 <div className="mb-6">
                   <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-3">
-                    Select Payment & AutoPay Method
+                    Select Payment Method
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div
-                      onClick={() => setFormData({ ...formData, autoPayMethod: 'upi_autopay' })}
-                      className={`cursor-pointer p-4 rounded-2xl border transition-all ${
-                        formData.autoPayMethod === 'upi_autopay'
-                          ? 'bg-cyan-950/40 border-cyan-400 ring-1 ring-cyan-400'
-                          : 'bg-white/5 border-white/10 hover:border-white/20'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                          <CreditCard className="w-3.5 h-3.5 text-cyan-400" />
-                          UPI AutoPay (eMandate)
-                        </span>
-                        {formData.autoPayMethod === 'upi_autopay' && <CheckCircle2 className="w-4 h-4 text-cyan-400" />}
-                      </div>
-                      <p className="text-[11px] text-gray-400">Automated bank deduction every 30 days via GPay/PhonePe</p>
-                    </div>
-
                     <div
                       onClick={() => setFormData({ ...formData, autoPayMethod: 'direct_upi_qr' })}
                       className={`cursor-pointer p-4 rounded-2xl border transition-all ${
@@ -515,63 +642,147 @@ function OnboardingContent() {
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-xs font-bold text-white flex items-center gap-1.5">
                           <Smartphone className="w-3.5 h-3.5 text-emerald-400" />
-                          Instant UPI QR (₹0 Gateway Cost)
+                          Direct UPI QR (GPay / PhonePe / Paytm)
                         </span>
                         {formData.autoPayMethod === 'direct_upi_qr' && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
                       </div>
-                      <p className="text-[11px] text-gray-400">Scan QR directly to your business UPI with monthly auto-reminder</p>
+                      <p className="text-[11px] text-gray-400">Scan QR, enter 12-digit UTR ref, and activate site</p>
+                    </div>
+
+                    <div
+                      onClick={() => setFormData({ ...formData, autoPayMethod: 'upi_autopay' })}
+                      className={`cursor-pointer p-4 rounded-2xl border transition-all ${
+                        formData.autoPayMethod === 'upi_autopay'
+                          ? 'bg-cyan-950/40 border-cyan-400 ring-1 ring-cyan-400'
+                          : 'bg-white/5 border-white/10 hover:border-white/20'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                          <CreditCard className="w-3.5 h-3.5 text-cyan-400" />
+                          Razorpay Gateway (Cards / NetBanking / UPI)
+                        </span>
+                        {formData.autoPayMethod === 'upi_autopay' && <CheckCircle2 className="w-4 h-4 text-cyan-400" />}
+                      </div>
+                      <p className="text-[11px] text-gray-400">Instant automated checkout with payment receipt</p>
                     </div>
                   </div>
                 </div>
 
-                {formData.autoPayMethod === 'upi_autopay' ? (
-                  <>
-                    {/* AutoPay Explanation */}
-                    <div className="p-4 rounded-xl bg-cyan-950/30 border border-cyan-500/30 mb-8 flex items-start gap-3">
+                {/* Option A: Direct UPI QR with UTR submission */}
+                {formData.autoPayMethod === 'direct_upi_qr' ? (
+                  <div className="space-y-6 mb-8">
+                    {/* Choose which UPI ID to pay to */}
+                    <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                      <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
+                        Step 1: Choose Your Preferred UPI Receiver
+                      </label>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">
+                        {upiList.map((item, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setSelectedUpi(item.id)}
+                            className={`p-3 rounded-xl border text-left transition-all ${
+                              selectedUpi === item.id
+                                ? 'bg-emerald-500/20 border-emerald-400 text-white font-bold'
+                                : 'bg-white/5 border-white/10 text-gray-300 hover:border-white/20 text-xs'
+                            }`}
+                          >
+                            <div className="text-[10px] text-gray-400 uppercase">{item.label}</div>
+                            <div className="font-mono text-xs truncate mt-0.5">{item.id}</div>
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Dynamic QR Code & Copy UPI Box */}
+                      <div className="p-5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex flex-col sm:flex-row items-center gap-6">
+                        <div className="p-3 bg-white rounded-xl shadow-lg shrink-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=${encodeURIComponent(selectedUpi)}%26pn=Pixzora%26am=299%26cu=INR`}
+                            alt="UPI QR Code"
+                            className="w-32 h-32"
+                          />
+                        </div>
+                        <div className="text-xs text-gray-300 space-y-2 text-center sm:text-left flex-1">
+                          <div className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[10px] uppercase">
+                            Official Pixzora Merchant QR
+                          </div>
+                          <p className="font-bold text-white text-base">Pay ₹299 using Any UPI App</p>
+                          <p className="text-gray-400">
+                            Scan the QR code or copy the UPI ID below into Google Pay, PhonePe, Paytm or BHIM to pay ₹299.
+                          </p>
+                          <div className="flex flex-wrap items-center gap-2 pt-1">
+                            <span className="font-mono text-cyan-300 text-xs bg-black/60 px-3 py-1.5 rounded-lg border border-white/10 select-all">
+                              {selectedUpi}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.writeText(selectedUpi);
+                                setCopiedUpi(true);
+                                setTimeout(() => setCopiedUpi(false), 2000);
+                              }}
+                              className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1 border border-white/10 transition-all"
+                            >
+                              <Copy className="w-3.5 h-3.5" />
+                              {copiedUpi ? 'Copied!' : 'Copy UPI ID'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Step 2: Mandatory 12-digit UTR Input */}
+                    <div className="p-5 rounded-2xl bg-slate-900 border border-amber-500/40 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                        <label className="text-xs font-bold text-white uppercase tracking-wider">
+                          Step 2: Enter 12-Digit UPI Reference / UTR Number (Mandatory)
+                        </label>
+                      </div>
+                      <p className="text-xs text-gray-400">
+                        After completing the ₹299 payment, your UPI app will display a <strong>12-digit UTR / UPI Ref ID</strong> (e.g. <code>427189283719</code>). Enter it here to verify your domain:
+                      </p>
+                      <input
+                        type="text"
+                        maxLength={16}
+                        placeholder="e.g. 427189283719"
+                        value={utrNumber}
+                        onChange={(e) => setUtrNumber(e.target.value.replace(/[^0-9]/g, ''))}
+                        className="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-amber-400 text-base font-mono tracking-widest"
+                      />
+                      <div className="text-[11px] text-gray-500 flex items-center gap-1.5">
+                        <Lock className="w-3 h-3 text-cyan-400" />
+                        <span>Stores without valid verified payment remain locked to prevent domain abuse.</span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  /* Option B: Razorpay Online Payment Gateway */
+                  <div className="space-y-4 mb-8">
+                    <div className="p-4 rounded-xl bg-cyan-950/30 border border-cyan-500/30 flex items-start gap-3">
                       <Lock className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
                       <div className="text-xs text-gray-300 space-y-1">
-                        <p className="font-bold text-white">RBI Compliant eMandate / UPI AutoPay</p>
+                        <p className="font-bold text-white">Instant 100% Automated Gateway Verification</p>
                         <p>
-                          Your first deduction of ₹299 happens today. Subsequent deductions of ₹299 will occur automatically every 30 days from your bank account. You can pause or cancel anytime with 1-click.
+                          Pay securely via Razorpay with Debit/Credit Card, NetBanking, or UPI AutoPay. Upon payment completion, your domain will be activated and deployed automatically.
                         </p>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-                      {['Google Pay', 'PhonePe', 'Paytm UPI', 'Any Bank Card'].map((provider, i) => (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {['Google Pay', 'PhonePe', 'Paytm UPI', 'Visa / Mastercard'].map((provider, i) => (
                         <div key={i} className="rounded-xl p-3 bg-white/5 border border-white/10 text-center text-xs font-semibold text-gray-300">
                           {provider}
                         </div>
                       ))}
                     </div>
-                  </>
-                ) : (
-                  /* Zero-Cost Direct UPI QR Mode */
-                  <div className="p-5 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 mb-8 flex flex-col sm:flex-row items-center gap-6">
-                    <div className="p-3 bg-white rounded-xl shadow-lg shrink-0">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=upi://pay?pa=pixzora@upi%26pn=Pixzora%26am=299%26cu=INR"
-                        alt="UPI QR Code"
-                        className="w-28 h-28"
-                      />
-                    </div>
-                    <div className="text-xs text-gray-300 space-y-2 text-center sm:text-left">
-                      <div className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[10px] uppercase">
-                        Zero Gateway Commission Mode
-                      </div>
-                      <p className="font-bold text-white text-sm">Scan with Any UPI App to pay ₹299</p>
-                      <p className="text-gray-400">
-                        Scan using GPay, PhonePe, Paytm or BHIM. Direct to your UPI ID without paying payment gateway commission.
-                      </p>
-                      <div className="font-mono text-cyan-400 text-xs bg-black/40 px-3 py-1.5 rounded-lg border border-white/10 inline-block">
-                        UPI ID: pixzora@upi
-                      </div>
-                    </div>
                   </div>
                 )}
 
-                {/* Authorize Button */}
+                {/* Submit / Pay Button */}
                 <div className="flex items-center justify-between pt-6 border-t border-white/10">
                   <button
                     onClick={() => setStep(2)}
@@ -581,34 +792,56 @@ function OnboardingContent() {
                   </button>
 
                   <button
-                    onClick={handleAuthorizeAutoPay}
-                    disabled={isProcessingPayment}
-                    className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-400 via-teal-400 to-indigo-500 text-black font-extrabold text-sm flex items-center gap-2 shadow-xl shadow-cyan-500/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+                    onClick={formData.autoPayMethod === 'direct_upi_qr' ? handleUpiPaymentSubmit : handleRazorpayCheckout}
+                    disabled={isProcessingPayment || (formData.autoPayMethod === 'direct_upi_qr' && (!utrNumber || utrNumber.length < 8))}
+                    className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-400 via-teal-400 to-indigo-500 text-black font-extrabold text-sm flex items-center gap-2 shadow-xl shadow-cyan-500/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-40 disabled:hover:scale-100 cursor-pointer"
                   >
                     {isProcessingPayment ? (
                       <>
                         <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                        Verifying Subscription...
+                        Verifying Payment...
+                      </>
+                    ) : formData.autoPayMethod === 'direct_upi_qr' ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4" />
+                        Submit UTR & Reserve Domain
                       </>
                     ) : (
                       <>
                         <CreditCard className="w-4 h-4" />
-                        {formData.autoPayMethod === 'upi_autopay' ? 'Authorize ₹299 UPI AutoPay' : 'I Have Paid ₹299 - Activate Site'}
+                        Pay ₹299 Online & Activate Store
                       </>
                     )}
                   </button>
                 </div>
               </>
             ) : (
-              /* Success Confirmation */
+              /* Success / Pending Confirmation */
               <div className="text-center py-8">
-                <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-6 ring-8 ring-emerald-500/10">
-                  <CheckCircle2 className="w-10 h-10" />
-                </div>
-                <h2 className="text-3xl font-extrabold text-white mb-2">Subscription Activated!</h2>
-                <p className="text-sm text-gray-300 max-w-md mx-auto mb-6">
-                  Your recurring ₹299/mo plan is active. We are provisioning your isolated edge environment at:
-                </p>
+                {activationMode === 'instant' ? (
+                  <>
+                    <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-6 ring-8 ring-emerald-500/10">
+                      <CheckCircle2 className="w-10 h-10" />
+                    </div>
+                    <h2 className="text-3xl font-extrabold text-white mb-2">Payment Verified & Activated!</h2>
+                    <p className="text-sm text-gray-300 max-w-md mx-auto mb-6">
+                      Your ₹299 payment has been verified. Your dedicated store is provisioned at:
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-16 h-16 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-6 ring-8 ring-amber-500/10">
+                      <Clock className="w-10 h-10" />
+                    </div>
+                    <h2 className="text-3xl font-extrabold text-white mb-2">Payment Received — Awaiting Verification!</h2>
+                    <p className="text-sm text-gray-300 max-w-md mx-auto mb-4">
+                      Thank you! Your UTR <span className="font-mono text-amber-400 font-bold">{utrNumber}</span> has been logged.
+                    </p>
+                    <p className="text-xs text-gray-400 max-w-md mx-auto mb-6">
+                      Your subdomain is <strong>reserved exclusively for you</strong>. Our administrator will verify the bank deposit and activate your store within 15–30 minutes.
+                    </p>
+                  </>
+                )}
 
                 <div className="inline-block p-4 rounded-2xl bg-slate-900 border border-cyan-500/30 font-mono text-cyan-400 text-base font-bold mb-8">
                   https://{formData.subdomain || 'mybrand'}.pages.dev
@@ -616,29 +849,35 @@ function OnboardingContent() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto text-left text-xs mb-8">
                   <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-                    <span className="text-gray-400 block">Subscription ID</span>
-                    <span className="font-mono text-white">sub_PX99824_LIVE</span>
+                    <span className="text-gray-400 block">Payment Mode</span>
+                    <span className="font-mono text-white">
+                      {formData.autoPayMethod === 'direct_upi_qr' ? `Direct UPI (UTR: ${utrNumber})` : 'Razorpay Verified'}
+                    </span>
                   </div>
                   <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-                    <span className="text-gray-400 block">Next Auto-Debit</span>
-                    <span className="text-white">30 Days from today (₹299)</span>
+                    <span className="text-gray-400 block">Store Status</span>
+                    <span className={activationMode === 'instant' ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold'}>
+                      {activationMode === 'instant' ? 'Active & Live' : 'Pending Verification'}
+                    </span>
                   </div>
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <a
+                    href={`https://wa.me/916265413244?text=Hi%20Pixzora%2C%20I%20have%20submitted%20UTR%20${utrNumber}%20for%20my%20store%20${formData.subdomain}.pages.dev.%20Please%20verify%20and%20activate.`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs shadow-lg shadow-emerald-500/25 transition-all flex items-center justify-center gap-2"
+                  >
+                    <span>Send UTR on WhatsApp for Instant Approval</span>
+                  </a>
+
                   <Link
                     href={`/preview/${formData.selectedTemplate}`}
                     target="_blank"
-                    className="w-full sm:w-auto px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs shadow-lg shadow-cyan-500/25 transition-all"
-                  >
-                    View Your Live Website
-                  </Link>
-
-                  <Link
-                    href="/admin"
                     className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold text-xs border border-white/10 transition-all"
                   >
-                    Go to Admin Registry
+                    Preview Template
                   </Link>
                 </div>
               </div>

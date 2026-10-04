@@ -31,7 +31,7 @@ export default function AdminDashboard() {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'suspended'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive' | 'suspended'>('all');
   const [activeTab, setActiveTab] = useState<'tenants' | 'products' | 'orders'>('tenants');
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [productsList, setProductsList] = useState<Product[]>([]);
@@ -173,6 +173,27 @@ export default function AdminDashboard() {
       }
     } catch (err: any) {
       alert('Error: ' + err.message);
+    }
+  };
+
+  // Verify payment and activate store
+  const verifyAndActivateTenant = async (id: string, name: string) => {
+    const confirmed = window.confirm(`Confirm payment received for "${name}"?\n\nThis will set the store to ACTIVE and activate https://...pages.dev domain.`);
+    if (!confirmed) return;
+
+    const { error } = await supabase
+      .from('tenants')
+      .update({ 
+        status: 'active',
+        subscription_status: 'active'
+      })
+      .eq('id', id);
+
+    if (error) {
+      alert('Error activating store: ' + error.message);
+    } else {
+      setTenants(prev => prev.map(t => t.id === id ? { ...t, status: 'active', subscription_status: 'active' } : t));
+      alert(`🎉 "${name}" is now ACTIVE! Domain unlocked.`);
     }
   };
 
@@ -441,6 +462,15 @@ export default function AdminDashboard() {
                   All ({tenants.length})
                 </button>
                 <button
+                  onClick={() => setStatusFilter('inactive')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    statusFilter === 'inactive' ? 'bg-amber-500 text-black font-bold' : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+                  }`}
+                >
+                  <Clock className="w-3 h-3" />
+                  Pending Approval ({tenants.filter(c => c.status === 'inactive').length})
+                </button>
+                <button
                   onClick={() => setStatusFilter('active')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                     statusFilter === 'active' ? 'bg-emerald-500 text-black' : 'bg-white/5 text-gray-400'
@@ -470,7 +500,7 @@ export default function AdminDashboard() {
                       <th className="py-3.5 px-4 font-semibold">Type</th>
                       <th className="py-3.5 px-4 font-semibold">Billing Plan</th>
                       <th className="py-3.5 px-4 font-semibold">Status</th>
-                      <th className="py-3.5 px-4 font-semibold text-right">Kill Switch</th>
+                      <th className="py-3.5 px-4 font-semibold text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
@@ -489,6 +519,7 @@ export default function AdminDashboard() {
                     ) : (
                       filteredTenants.map((client) => {
                         const isActive = client.status === 'active';
+                        const isPending = client.status === 'inactive';
                         return (
                           <tr key={client.id} className="hover:bg-white/5 transition-colors">
                             <td className="py-4 px-4">
@@ -550,31 +581,42 @@ export default function AdminDashboard() {
 
                             <td className="py-4 px-4">
                               <div className="flex items-center gap-2">
-                                <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-emerald-400' : 'bg-red-400'}`} />
-                                <span className={isActive ? 'text-emerald-300 font-medium' : 'text-red-400 font-medium'}>
-                                  {isActive ? 'Active' : 'Suspended'}
+                                <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-emerald-400' : isPending ? 'bg-amber-400 animate-pulse' : 'bg-red-400'}`} />
+                                <span className={isActive ? 'text-emerald-300 font-medium' : isPending ? 'text-amber-400 font-medium' : 'text-red-400 font-medium'}>
+                                  {isActive ? 'Active' : isPending ? 'Pending Verification' : 'Suspended'}
                                 </span>
                               </div>
                             </td>
 
                             <td className="py-4 px-4 text-right">
                               <div className="flex items-center justify-end gap-2">
-                                <button
-                                  onClick={() => toggleTenantStatus(client.id, client.status)}
-                                  title={isActive ? 'Suspend Website' : 'Reactivate Website'}
-                                  className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 transition-all ${
-                                    isActive
-                                      ? 'bg-amber-500/10 text-amber-400 hover:bg-amber-500 hover:text-black'
-                                      : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-black'
-                                  }`}
-                                >
-                                  <Power className="w-3 h-3" />
-                                  {isActive ? 'Suspend' : 'Reactivate'}
-                                </button>
+                                {isPending ? (
+                                  <button
+                                    onClick={() => verifyAndActivateTenant(client.id, client.name)}
+                                    title="Verify Payment & Unlock Store"
+                                    className="px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-400 text-black shadow-lg shadow-emerald-500/20 transition-all"
+                                  >
+                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                    Verify & Activate
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => toggleTenantStatus(client.id, client.status)}
+                                    title={isActive ? 'Suspend Website' : 'Reactivate Website'}
+                                    className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 transition-all ${
+                                      isActive
+                                        ? 'bg-amber-500/10 text-amber-400 hover:bg-amber-500 hover:text-black'
+                                        : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-black'
+                                    }`}
+                                  >
+                                    <Power className="w-3 h-3" />
+                                    {isActive ? 'Suspend' : 'Reactivate'}
+                                  </button>
+                                )}
 
                                 <button
                                   onClick={() => deleteTenant(client.id, client.name, client.slug)}
-                                  title="Permanently Delete Client"
+                                  title="Permanently Delete Client / Release Domain"
                                   className="p-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />

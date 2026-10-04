@@ -214,6 +214,46 @@ export default function DedicatedClientStore({ tenantSlug }: ClientSiteProps) {
     );
   }
 
+  // Handle Inactive / Pending Verification Tenant
+  if (tenant.status === 'inactive') {
+    return (
+      <div className="min-h-screen bg-[#070a12] text-white flex items-center justify-center p-4">
+        <div className="glass-panel p-8 sm:p-10 rounded-3xl border border-amber-500/30 text-center max-w-lg shadow-2xl shadow-amber-500/10 backdrop-blur-xl bg-black/60">
+          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto mb-6 text-amber-400 shadow-inner">
+            <Clock className="w-8 h-8" />
+          </div>
+          <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 font-mono text-[11px] uppercase tracking-wider">
+            Pending Payment Verification
+          </span>
+          <h2 className="text-2xl font-black text-white mt-4 mb-2">
+            Domain Reserved — Awaiting Activation
+          </h2>
+          <p className="text-sm text-gray-300 mb-6 leading-relaxed">
+            The domain <span className="text-cyan-400 font-mono font-bold">{tenantSlug}.pages.dev</span> has been successfully reserved for <span className="text-white font-bold">{tenant.name}</span>. The store is locked while payment verification is underway.
+          </p>
+          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-xs text-gray-400 mb-6 text-left space-y-2">
+            <div className="flex items-center gap-2 text-gray-300 font-medium">
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+              <span>Activation in Progress</span>
+            </div>
+            <p className="text-[11px] leading-relaxed">
+              Upon confirmation of the ₹299 monthly subscription or UPI transfer, your full website and catalog will be activated automatically.
+            </p>
+          </div>
+          <a
+            href={`https://wa.me/916265413244?text=Hi%20Pixzora%2C%20I%20have%20submitted%20payment%20for%20my%20store%20${tenantSlug}.pages.dev.%20Please%20verify%20and%20activate.`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold text-xs shadow-lg shadow-amber-500/20 transition-all"
+          >
+            <MessageCircle className="w-4 h-4" />
+            <span>Notify Admin on WhatsApp</span>
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   // Handle Suspended Tenant
   if (tenant.status === 'suspended') {
     return (
