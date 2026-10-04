@@ -63,6 +63,9 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  verification: {
+    google: "google1c835f4b0fc2f2c5",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
