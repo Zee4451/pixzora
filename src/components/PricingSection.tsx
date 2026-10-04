@@ -139,43 +139,43 @@ export default function PricingSection() {
               </div>
               <h3 className="text-xl font-bold text-white mb-6">Frequently Asked Questions</h3>
 
-              <div className="space-y-6 text-xs text-gray-300">
+              <div className="space-y-6 text-xs text-slate-300">
                 <div>
                   <h4 className="font-bold text-white text-sm mb-1">How does the ₹299 AutoPay work?</h4>
-                  <p className="text-gray-400 leading-relaxed">
+                  <p className="text-slate-300 leading-relaxed">
                     During checkout, you authorize a recurring eMandate/UPI AutoPay with Razorpay using GPay, PhonePe, or Cards. Your ₹299 gets automatically deducted each month. You can pause or cancel anytime with zero lock-in period.
                   </p>
                 </div>
 
                 <div>
                   <h4 className="font-bold text-white text-sm mb-1">Is hosting truly free of cost for commercial use?</h4>
-                  <p className="text-gray-400 leading-relaxed">
+                  <p className="text-slate-300 leading-relaxed">
                     Yes! We host your website on Cloudflare Pages and Vercel edge networks, which offer free commercial deployment tiers with unlimited fast bandwidth, SSL certificates, and 99.99% uptime.
                   </p>
                 </div>
 
                 <div>
                   <h4 className="font-bold text-white text-sm mb-1">Can I use my existing domain name?</h4>
-                  <p className="text-gray-400 leading-relaxed">
+                  <p className="text-slate-300 leading-relaxed">
                     Absolutely. You get a free subdomain (e.g. <code>mybrand.pages.dev</code>) instantly, and if you already own a <code>.com</code> or <code>.in</code> domain, we map it to your website at ₹0 extra charge.
                   </p>
                 </div>
 
                 <div>
                   <h4 className="font-bold text-white text-sm mb-1">What if another client's website gets attacked?</h4>
-                  <p className="text-gray-400 leading-relaxed">
+                  <p className="text-slate-300 leading-relaxed">
                     Impossible to affect you. Unlike old shared cPanel hosts where 1 site can compromise all sites, each Pixzora website runs in its own isolated static container and isolated database space.
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-between">
+            <div className="mt-8 pt-6 border-t border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2 text-emerald-400 text-xs font-medium">
                 <ShieldCheck className="w-4 h-4" />
                 <span>100% Satisfaction Guarantee</span>
               </div>
-              <span className="text-[11px] text-gray-400">Instant Setup in 24 Hrs</span>
+              <span className="text-[11px] text-slate-300">Instant Setup in 24 Hrs</span>
             </div>
           </div>
 

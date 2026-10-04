@@ -87,42 +87,42 @@ export default function SecuritySection() {
 
         {/* 4 Pillars of Pixzora Security */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="glass-panel rounded-2xl p-6 border border-white/5">
-            <div className="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-4">
+          <div className="glass-panel rounded-2xl p-6 border border-slate-800 bg-slate-900/40">
+            <div className="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-4 border border-cyan-500/20" aria-hidden="true">
               <Lock className="w-6 h-6" />
             </div>
-            <h4 className="text-base font-bold text-white mb-2">Scoped API Tokens</h4>
-            <p className="text-xs text-gray-400 leading-relaxed">
+            <h3 className="text-base font-bold text-white mb-2">Scoped API Tokens</h3>
+            <p className="text-xs text-slate-300 leading-relaxed">
               Every client's frontend only carries read-only, origin-restricted tokens. Admin endpoints require 2FA and cryptographic JWT authentication.
             </p>
           </div>
 
-          <div className="glass-panel rounded-2xl p-6 border border-white/5">
-            <div className="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-4">
+          <div className="glass-panel rounded-2xl p-6 border border-slate-800 bg-slate-900/40">
+            <div className="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-4 border border-purple-500/20" aria-hidden="true">
               <Server className="w-6 h-6" />
             </div>
-            <h4 className="text-base font-bold text-white mb-2">Zero Shared OS</h4>
-            <p className="text-xs text-gray-400 leading-relaxed">
+            <h3 className="text-base font-bold text-white mb-2">Zero Shared OS</h3>
+            <p className="text-xs text-slate-300 leading-relaxed">
               Websites do not share a common Linux user, memory pool, or filesystem. Cloudflare Edge isolates each bundle across 300+ global data centers.
             </p>
           </div>
 
-          <div className="glass-panel rounded-2xl p-6 border border-white/5">
-            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4">
+          <div className="glass-panel rounded-2xl p-6 border border-slate-800 bg-slate-900/40">
+            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4 border border-emerald-500/20" aria-hidden="true">
               <Database className="w-6 h-6" />
             </div>
-            <h4 className="text-base font-bold text-white mb-2">PostgreSQL RLS</h4>
-            <p className="text-xs text-gray-400 leading-relaxed">
+            <h3 className="text-base font-bold text-white mb-2">PostgreSQL RLS</h3>
+            <p className="text-xs text-slate-300 leading-relaxed">
               Orders, inquiries, and customer data are locked with database-level policies. Even if a client injects SQL, queries cannot cross their tenant boundary.
             </p>
           </div>
 
-          <div className="glass-panel rounded-2xl p-6 border border-white/5">
-            <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4">
+          <div className="glass-panel rounded-2xl p-6 border border-slate-800 bg-slate-900/40">
+            <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4 border border-amber-500/20" aria-hidden="true">
               <Cpu className="w-6 h-6" />
             </div>
-            <h4 className="text-base font-bold text-white mb-2">Auto-Kill Switch</h4>
-            <p className="text-xs text-gray-400 leading-relaxed">
+            <h3 className="text-base font-bold text-white mb-2">Auto-Kill Switch</h3>
+            <p className="text-xs text-slate-300 leading-relaxed">
               If any unusual anomaly or attack pattern is detected on a client's site, our admin panel can instantly quarantine the domain in 1-click without affecting the platform.
             </p>
           </div>

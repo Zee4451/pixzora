@@ -17,7 +17,7 @@ export default function Navbar() {
                 ₹299/mo
               </span>
             </span>
-            <span className="text-[11px] text-slate-400">Managed Web Infrastructure • Zero Hosting Cost</span>
+            <span className="text-[11px] text-slate-300">Managed Web Infrastructure • Zero Hosting Cost</span>
           </div>
         </Link>
 
