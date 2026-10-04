@@ -207,19 +207,61 @@ function OnboardingContent() {
     }
   };
 
-  // 2. RAZORPAY ONLINE GATEWAY PAYMENT (INSTANT AUTO-ACTIVATION ONLY ON VERIFIED SUCCESS)
-  const handleRazorpayCheckout = () => {
+  // 2. RAZORPAY SUBSCRIPTION LINK & ONLINE GATEWAY (UPI AUTOPAY / RECURRING)
+  const handleRazorpayCheckout = async () => {
+    const subLink = process.env.NEXT_PUBLIC_RAZORPAY_SUBSCRIPTION_LINK || 'https://rzp.io/rzp/e5rMWCK';
     const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
-    
-    // If no key configured, guide user to Direct UPI mode
+
+    // A. If direct Razorpay Subscription Link is active (https://rzp.io/rzp/e5rMWCK)
+    if (subLink) {
+      setIsProcessingPayment(true);
+      try {
+        const cleanSlug = formData.subdomain.toLowerCase().replace(/[^a-z0-9-]/g, '');
+        const mappedType = formData.category === 'restaurant' ? 'restaurant' : formData.category === 'service' ? 'services' : formData.category === 'portfolio' ? 'portfolio' : 'ecommerce';
+
+        // Pre-reserve domain in Supabase with status: 'inactive'
+        const ownerLabel = formData.ownerName 
+          ? `${formData.ownerName} [Razorpay Sub Link: e5rMWCK]` 
+          : `[Razorpay Sub Link: e5rMWCK]`;
+
+        await supabase.from('tenants').insert([
+          {
+            name: formData.businessName,
+            slug: cleanSlug,
+            business_type: mappedType,
+            owner_name: ownerLabel,
+            phone: formData.phone,
+            email: formData.email,
+            monthly_price: 299,
+            status: 'inactive', // Locked until verified
+            subscription_status: 'due',
+          }
+        ]);
+
+        // Open official Razorpay Recurring Subscription Checkout in new tab
+        window.open(subLink, '_blank');
+
+        setActivationMode('pending_verification');
+        setMandateSuccess(true);
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      } catch (err: any) {
+        console.error('Error initiating Razorpay checkout:', err);
+        window.open(subLink, '_blank');
+      } finally {
+        setIsProcessingPayment(false);
+      }
+      return;
+    }
+
+    // B. Standard SDK modal fallback if Key ID provided
     if (!razorpayKey) {
-      alert('Razorpay Gateway is in setup mode. Please use the "Instant UPI QR" option below to pay ₹299 directly to UPI ID and enter your 12-digit UTR!');
+      alert('Please use the Direct UPI QR option or contact admin.');
       setFormData(prev => ({ ...prev, autoPayMethod: 'direct_upi_qr' }));
       return;
     }
 
     if (typeof window === 'undefined' || !(window as any).Razorpay) {
-      alert('Razorpay SDK is still loading. Please check your internet connection or try in a moment.');
+      alert('Razorpay SDK is loading. Please try in a moment.');
       return;
     }
 
@@ -286,7 +328,7 @@ function OnboardingContent() {
           confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
         } catch (err: any) {
           console.error('Error saving tenant post-payment:', err);
-          alert('Payment succeeded with ID: ' + response.razorpay_payment_id + ', but database registration encountered an edge error. Contact admin with your Payment ID.');
+          alert('Payment succeeded with ID: ' + response.razorpay_payment_id);
         } finally {
           setIsProcessingPayment(false);
         }
